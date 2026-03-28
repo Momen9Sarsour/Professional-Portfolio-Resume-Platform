@@ -3,7 +3,6 @@
 namespace Database\Seeders;
 
 use App\Models\Skill;
-use App\Models\Skills;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -26,7 +25,7 @@ class SkillSeeder extends Seeder
         ];
 
         foreach ($skills as $skill) {
-            Skills::create([
+            Skill::create([
                 'user_id' => $user->id,
                 'name' => $skill[0],
                 'level' => $skill[1],

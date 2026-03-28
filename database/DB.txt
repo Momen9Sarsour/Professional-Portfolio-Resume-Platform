@@ -1,0 +1,24 @@
+users
+id | name | username | email | email_verified_at | password | role
+
+profiles
+id | user_id | title | bio | location | avatar | cv_file
+
+projects
+id | user_id | title | description | category | image | github_link | demo_link | technologies | sort_order | is_active
+
+skills
+id | user_id | name | level | category | is_active
+
+experiences
+id | user_id | company | job_title | start_date | end_date | description | is_active
+
+education
+id | user_id | university | degree | start_date | end_date | description | is_active
+
+social_links
+id  | user_id | platform | url | is_active
+
+messages
+id | profile_id | name | email | message
+

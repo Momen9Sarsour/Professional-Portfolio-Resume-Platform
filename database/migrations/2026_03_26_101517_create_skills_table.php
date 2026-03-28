@@ -18,6 +18,8 @@ return new class extends Migration
             $table->string('name');
             $table->integer('level')->nullable();
             $table->string('category')->nullable();
+            $table->boolean('is_active')->default(true);
+            // $table->boolean('is_active')->default('is_active');
 
             $table->timestamps();
         });

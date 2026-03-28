@@ -1,8 +1,8 @@
 @extends('layouts.dashboard')
 
-@section('title', 'Skills')
-@section('page-title', 'Skills')
-@section('page-subtitle', 'Manage your technical skills')
+@section('title', 'Experiences')
+@section('page-title', 'Experiences')
+@section('page-subtitle', 'Manage your work experience')
 
 @push('styles')
 <style>
@@ -53,65 +53,31 @@
         font-size: 12px;
     }
 
-    .badge-skill {
+    .date-badge {
         display: inline-block;
-        padding: 4px 12px;
-        border-radius: 20px;
-        font-size: 11px;
-        font-weight: 700;
-        white-space: nowrap;
-    }
-
-    .badge-frontend {
-        background: rgba(59, 130, 246, 0.1);
-        color: #2563eb;
-    }
-
-    .badge-backend {
-        background: rgba(239, 68, 68, 0.1);
-        color: #dc2626;
-    }
-
-    .badge-database {
-        background: rgba(245, 158, 11, 0.1);
-        color: #d97706;
-    }
-
-    .badge-devops {
-        background: rgba(107, 114, 128, 0.1);
-        color: #4b5563;
-    }
-
-    .badge-mobile {
-        background: rgba(17, 153, 142, 0.1);
-        color: #11998e;
-    }
-
-    .badge-other {
-        background: rgba(124, 58, 237, 0.1);
-        color: #7c3aed;
-    }
-
-    .level-bar {
-        width: 100%;
-        background: #e8edf5;
-        border-radius: 10px;
-        height: 6px;
-        overflow: hidden;
-    }
-
-    .level-fill {
-        background: #2f7bff;
-        height: 100%;
-        border-radius: 10px;
-        transition: width 0.3s ease;
-    }
-
-    .level-text {
-        font-size: 11px;
+        padding: 2px 8px;
+        border-radius: 12px;
+        font-size: 10px;
         font-weight: 600;
+        background: #f4f6fb;
+        color: #7a869a;
+    }
+
+    .present-badge {
+        background: #d1fae5;
+        color: #065f46;
+    }
+
+    .company-name {
+        font-weight: 600;
+        color: #2f7bff;
+        font-size: 13px;
+    }
+
+    .job-title {
+        font-weight: 700;
         color: #1a2035;
-        margin-left: 8px;
+        font-size: 13.5px;
     }
 
     .action-btn {
@@ -217,7 +183,6 @@
         gap: 8px;
         flex-wrap: wrap;
         margin-bottom: 20px;
-        align-items: center;
     }
 
     .filter-btn {
@@ -392,91 +357,68 @@
     {{-- ===== TOP ROW ===== --}}
     <div class="d-flex align-items-center justify-content-between mb-4 fade-up">
         <h5 style="font-size:18px;font-weight:700;color:#1a2035;margin:0;">
-            Skills <small style="font-size:13px;font-weight:400;color:#7a869a;margin-left:8px;">{{ $skills->total() }}
-                total</small>
+            Experiences <small style="font-size:13px;font-weight:400;color:#7a869a;margin-left:8px;">{{ $experiences->total() }} total</small>
         </h5>
         <button class="btn-primary-dash" onclick="openModal('createModal')">
-            <i class="bi bi-plus-lg"></i> Add Skill
+            <i class="bi bi-plus-lg"></i> Add Experience
         </button>
     </div>
 
     {{-- ===== FILTER BAR ===== --}}
     <div class="filter-bar fade-up d1">
-        <form action="{{ route('dashboard.skills.index') }}" method="GET" style="display: flex; gap: 8px; flex-wrap: wrap; width: 100%;">
-            <input type="text" name="search" class="search-input" placeholder="Search by name..." value="{{ request('search') }}">
-
-            <select name="category" class="form-control-dash" style="width: auto; min-width: 150px;">
-                <option value="">All Categories</option>
-                @foreach($categories as $cat)
-                    <option value="{{ $cat }}" {{ request('category') == $cat ? 'selected' : '' }}>{{ $cat }}</option>
-                @endforeach
-            </select>
-
-            <select name="status" class="form-control-dash" style="width: auto; min-width: 120px;">
-                <option value="">All Status</option>
-                <option value="1" {{ request('status') == '1' ? 'selected' : '' }}>Active</option>
-                <option value="0" {{ request('status') == '0' ? 'selected' : '' }}>Inactive</option>
-            </select>
-
-            <button type="submit" class="filter-btn" style="background: #2f7bff; color: #fff;">Filter</button>
-            @if(request('search') || request('category') || request('status'))
-                <a href="{{ route('dashboard.skills.index') }}" class="filter-btn" style="background: #e8edf5; color: #7a869a; border-color: #e8edf5;">Clear</a>
-            @endif
-        </form>
+        <input type="text" id="searchInput" class="search-input" placeholder="Search company or job title..." value="{{ request('search') }}">
+        <select id="statusFilter" class="form-control-dash" style="width: auto; min-width: 120px;">
+            <option value="">All Status</option>
+            <option value="1" {{ request('status') == '1' ? 'selected' : '' }}>Active</option>
+            <option value="0" {{ request('status') == '0' ? 'selected' : '' }}>Inactive</option>
+        </select>
+        <button class="filter-btn" onclick="applyFilters()" style="background: #2f7bff; color: #fff;">Filter</button>
+        @if(request('search') || request('status'))
+        <button class="filter-btn" onclick="clearFilters()" style="background: #e8edf5; color: #7a869a; border-color: #e8edf5;">Clear</button>
+        @endif
+        <button class="filter-btn {{ !request('search') && !request('status') ? 'active' : '' }}" onclick="filterBy('')">All</button>
     </div>
 
-    {{-- ===== SKILLS TABLE ===== --}}
+    {{-- ===== EXPERIENCES TABLE ===== --}}
     <div class="card-box fade-up d2">
         <div style="overflow-x:auto;">
             <table class="dash-table">
                 <thead>
-                    <tr>
                         <th>#</th>
-                        <th>Skill Name</th>
-                        <th>Category</th>
-                        <th>Level</th>
+                        <th>Job Title / Company</th>
+                        <th>Period</th>
+                        <th>Description</th>
                         <th>Status</th>
-                        <th>Created</th>
                         <th>Actions</th>
-                    </tr>
-                </thead>
+                    </thead>
                 <tbody>
-                    @forelse($skills as $skill)
+                    @forelse($experiences as $exp)
                         <tr>
-                            <td class="muted">{{ $skills->firstItem() + $loop->index }}</td>
+                            <td class="muted">{{ $experiences->firstItem() + $loop->index }}</td>
                             <td>
-                                <div style="font-weight:700;color:#1a2035;font-size:13.5px;">{{ $skill->name }}</div>
+                                <div class="job-title">{{ $exp->job_title }}</div>
+                                <div class="company-name">{{ $exp->company }}</div>
+                                <div class="date-badge mt-1">Order: {{ $exp->sort_order }}</div>
                             </td>
                             <td>
-                                @php
-                                    $catClass = match ($skill->category) {
-                                        'Frontend' => 'badge-frontend',
-                                        'Backend' => 'badge-backend',
-                                        'Database' => 'badge-database',
-                                        'DevOps' => 'badge-devops',
-                                        'Mobile' => 'badge-mobile',
-                                        default => 'badge-other',
-                                    };
-                                @endphp
-                                <span class="badge-skill {{ $catClass }}">{{ $skill->category ?? 'Other' }}</span>
-                            </td>
-                            <td style="min-width: 150px;">
-                                @if($skill->level !== null)
-                                    <div style="display: flex; align-items: center; gap: 8px;">
-                                        <div class="level-bar" style="flex: 1;">
-                                            <div class="level-fill" style="width: {{ $skill->level }}%;"></div>
-                                        </div>
-                                        <span class="level-text">{{ $skill->level }}%</span>
-                                    </div>
-                                @else
-                                    <span style="color:#7a869a;">—</span>
-                                @endif
+                                <div>{{ \Carbon\Carbon::parse($exp->start_date)->format('M Y') }} -
+                                    @if($exp->end_date)
+                                        {{ \Carbon\Carbon::parse($exp->end_date)->format('M Y') }}
+                                    @else
+                                        <span class="date-badge present-badge">Present</span>
+                                    @endif
+                                </div>
                             </td>
                             <td>
-                                <form action="{{ route('dashboard.skills.toggle', $skill->id) }}" method="POST" style="display:inline;">
+                                <div style="max-width: 300px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                    {{ $exp->description ?? '—' }}
+                                </div>
+                            </td>
+                            <td>
+                                <form action="{{ route('dashboard.experiences.toggle', $exp->id) }}" method="POST" style="display:inline;">
                                     @csrf @method('PATCH')
                                     <button type="submit" style="background:none;border:none;cursor:pointer;padding:0;">
-                                        @if ($skill->is_active)
+                                        @if($exp->is_active)
                                             <span style="background:#d1fae5;color:#065f46;padding:4px 12px;border-radius:20px;font-size:11px;font-weight:700;">● Active</span>
                                         @else
                                             <span style="background:#fee2e2;color:#991b1b;padding:4px 12px;border-radius:20px;font-size:11px;font-weight:700;">● Inactive</span>
@@ -484,16 +426,15 @@
                                     </button>
                                 </form>
                             </td>
-                            <td class="muted">{{ $skill->created_at->format('M d, Y') }}</td>
                             <td>
                                 <div style="display:flex;gap:6px;align-items:center;">
-                                    <button class="action-btn action-view" onclick="openShow({{ $skill->id }}, '{{ addslashes($skill->name) }}', '{{ addslashes($skill->category) }}', {{ $skill->level ?? 'null' }})">
+                                    <button class="action-btn action-view" onclick="openShow({{ $exp->id }}, '{{ addslashes($exp->job_title) }}', '{{ addslashes($exp->company) }}', '{{ $exp->start_date }}', '{{ $exp->end_date }}', '{{ addslashes($exp->description) }}', {{ $exp->sort_order }})">
                                         <i class="bi bi-eye-fill"></i>
                                     </button>
-                                    <button class="action-btn action-edit" onclick="openEdit({{ $skill->id }}, '{{ addslashes($skill->name) }}', '{{ addslashes($skill->category) }}', {{ $skill->level ?? 'null' }})">
+                                    <button class="action-btn action-edit" onclick="openEdit({{ $exp->id }}, '{{ addslashes($exp->job_title) }}', '{{ addslashes($exp->company) }}', '{{ $exp->start_date }}', '{{ $exp->end_date }}', '{{ addslashes($exp->description) }}', {{ $exp->sort_order }})">
                                         <i class="bi bi-pencil-fill"></i>
                                     </button>
-                                    <button class="action-btn action-del" onclick="openDeleteModal({{ $skill->id }}, '{{ addslashes($skill->name) }}')">
+                                    <button class="action-btn action-del" onclick="openDeleteModal({{ $exp->id }}, '{{ addslashes($exp->job_title) }}')">
                                         <i class="bi bi-trash-fill"></i>
                                     </button>
                                 </div>
@@ -501,12 +442,12 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7">
+                            <td colspan="6">
                                 <div class="empty-state">
-                                    <i class="bi bi-code-slash"></i>
-                                    <p>No skills found. Start by adding your first skill!</p>
+                                    <i class="bi bi-briefcase"></i>
+                                    <p>No work experience found. Start by adding your professional experience!</p>
                                     <button class="btn-primary-dash" onclick="openModal('createModal')">
-                                        <i class="bi bi-plus-lg"></i> Add Skill
+                                        <i class="bi bi-plus-lg"></i> Add Experience
                                     </button>
                                 </div>
                             </td>
@@ -517,13 +458,13 @@
         </div>
 
         {{-- Pagination --}}
-        @if ($skills->hasPages())
+        @if ($experiences->hasPages())
             <div style="margin-top:20px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
                 <div style="font-size:13px;color:#7a869a;">
-                    Showing {{ $skills->firstItem() }}–{{ $skills->lastItem() }} of {{ $skills->total() }} skills
+                    Showing {{ $experiences->firstItem() }}–{{ $experiences->lastItem() }} of {{ $experiences->total() }} experience records
                 </div>
                 <div class="dash-pagination">
-                    {{ $skills->links() }}
+                    {{ $experiences->links() }}
                 </div>
             </div>
         @endif
@@ -534,45 +475,50 @@
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" style="font-weight:700;"><i class="bi bi-plus-circle-fill me-2"></i>Add New Skill</h5>
+                    <h5 class="modal-title" style="font-weight:700;"><i class="bi bi-plus-circle-fill me-2"></i>Add New Experience</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <form action="{{ route('dashboard.skills.store') }}" method="POST">
+                <form action="{{ route('dashboard.experiences.store') }}" method="POST">
                     @csrf
                     <div class="modal-body">
                         <div class="row g-3">
-                            <div class="col-md-8">
-                                <label class="form-label-dash">Skill Name *</label>
-                                <input type="text" name="name" class="form-control-dash" placeholder="e.g. Laravel, React, Python" required>
+                            <div class="col-md-6">
+                                <label class="form-label-dash">Job Title *</label>
+                                <input type="text" name="job_title" class="form-control-dash" placeholder="e.g. Full Stack Developer" required>
                             </div>
-                            <div class="col-md-4">
-                                <label class="form-label-dash">Category</label>
-                                <select name="category" class="form-control-dash">
-                                    <option value="">-- Select Category --</option>
-                                    <option value="Frontend">Frontend</option>
-                                    <option value="Backend">Backend</option>
-                                    <option value="Database">Database</option>
-                                    <option value="DevOps">DevOps</option>
-                                    <option value="Mobile">Mobile</option>
-                                    <option value="Other">Other</option>
-                                </select>
+                            <div class="col-md-6">
+                                <label class="form-label-dash">Company *</label>
+                                <input type="text" name="company" class="form-control-dash" placeholder="e.g. Google, Microsoft" required>
                             </div>
-                            <div class="col-12">
-                                <label class="form-label-dash">Skill Level <small style="font-weight:400;color:#7a869a;">(0-100%)</small></label>
-                                <input type="range" name="level" class="form-control-dash" min="0" max="100" value="50" oninput="this.nextElementSibling.value = this.value">
-                                <output style="display: block; text-align: center; margin-top: 5px; font-size: 12px; color: #2f7bff;">50%</output>
+                            <div class="col-md-6">
+                                <label class="form-label-dash">Start Date *</label>
+                                <input type="date" name="start_date" class="form-control-dash" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label-dash">End Date</label>
+                                <input type="date" name="end_date" class="form-control-dash">
+                                <small style="font-size:11px;color:#7a869a;">Leave empty if currently working</small>
                             </div>
                             <div class="col-12">
-                                <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13.5px;font-weight:600;">
+                                <label class="form-label-dash">Description</label>
+                                <textarea name="description" class="form-control-dash" rows="4" placeholder="Describe your responsibilities, achievements, technologies used..."></textarea>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label-dash">Sort Order</label>
+                                <input type="number" name="sort_order" class="form-control-dash" value="0" min="0">
+                                <small style="font-size:11px;color:#7a869a;">Lower numbers appear first</small>
+                            </div>
+                            <div class="col-md-6">
+                                <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13.5px;font-weight:600;margin-top:32px;">
                                     <input type="checkbox" name="is_active" value="1" checked style="width:16px;height:16px;accent-color:#2f7bff;">
-                                    Show this skill on the public portfolio
+                                    Show this experience on the public portfolio
                                 </label>
                             </div>
                         </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn-light-dash" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn-primary-dash"><i class="bi bi-check-lg me-1"></i> Save Skill</button>
+                        <button type="submit" class="btn-primary-dash"><i class="bi bi-check-lg me-1"></i> Save Experience</button>
                     </div>
                 </form>
             </div>
@@ -584,45 +530,49 @@
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" style="font-weight:700;"><i class="bi bi-pencil-fill me-2"></i>Edit Skill</h5>
+                    <h5 class="modal-title" style="font-weight:700;"><i class="bi bi-pencil-fill me-2"></i>Edit Experience</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <form id="editForm" method="POST">
                     @csrf @method('PUT')
                     <div class="modal-body">
                         <div class="row g-3">
-                            <div class="col-md-8">
-                                <label class="form-label-dash">Skill Name *</label>
-                                <input type="text" name="name" id="edit_name" class="form-control-dash" required>
+                            <div class="col-md-6">
+                                <label class="form-label-dash">Job Title *</label>
+                                <input type="text" name="job_title" id="edit_job_title" class="form-control-dash" required>
                             </div>
-                            <div class="col-md-4">
-                                <label class="form-label-dash">Category</label>
-                                <select name="category" id="edit_category" class="form-control-dash">
-                                    <option value="">-- Select Category --</option>
-                                    <option value="Frontend">Frontend</option>
-                                    <option value="Backend">Backend</option>
-                                    <option value="Database">Database</option>
-                                    <option value="DevOps">DevOps</option>
-                                    <option value="Mobile">Mobile</option>
-                                    <option value="Other">Other</option>
-                                </select>
+                            <div class="col-md-6">
+                                <label class="form-label-dash">Company *</label>
+                                <input type="text" name="company" id="edit_company" class="form-control-dash" required>
                             </div>
-                            <div class="col-12">
-                                <label class="form-label-dash">Skill Level <small style="font-weight:400;color:#7a869a;">(0-100%)</small></label>
-                                <input type="range" name="level" id="edit_level" class="form-control-dash" min="0" max="100" oninput="this.nextElementSibling.value = this.value">
-                                <output id="edit_level_output" style="display: block; text-align: center; margin-top: 5px; font-size: 12px; color: #2f7bff;">50%</output>
+                            <div class="col-md-6">
+                                <label class="form-label-dash">Start Date *</label>
+                                <input type="date" name="start_date" id="edit_start_date" class="form-control-dash" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label-dash">End Date</label>
+                                <input type="date" name="end_date" id="edit_end_date" class="form-control-dash">
+                                <small style="font-size:11px;color:#7a869a;">Leave empty if currently working</small>
                             </div>
                             <div class="col-12">
-                                <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13.5px;font-weight:600;">
+                                <label class="form-label-dash">Description</label>
+                                <textarea name="description" id="edit_description" class="form-control-dash" rows="4"></textarea>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label-dash">Sort Order</label>
+                                <input type="number" name="sort_order" id="edit_sort_order" class="form-control-dash" min="0">
+                            </div>
+                            <div class="col-md-6">
+                                <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13.5px;font-weight:600;margin-top:32px;">
                                     <input type="checkbox" name="is_active" id="edit_is_active" value="1" style="width:16px;height:16px;accent-color:#2f7bff;">
-                                    Show this skill on the public portfolio
+                                    Show this experience on the public portfolio
                                 </label>
                             </div>
                         </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn-light-dash" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn-primary-dash"><i class="bi bi-check-lg me-1"></i> Update Skill</button>
+                        <button type="submit" class="btn-primary-dash"><i class="bi bi-check-lg me-1"></i> Update Experience</button>
                     </div>
                 </form>
             </div>
@@ -634,31 +584,35 @@
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" style="font-weight:700;"><i class="bi bi-eye-fill me-2"></i>Skill Details</h5>
+                    <h5 class="modal-title" style="font-weight:700;"><i class="bi bi-eye-fill me-2"></i>Experience Details</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
                     <div class="row g-4">
                         <div class="col-12">
                             <div class="mb-3">
-                                <label class="form-label-dash" style="color:#7a869a;">Skill Name</label>
-                                <h4 id="show_name" style="font-weight:700;color:#1a2035;margin:0;"></h4>
+                                <label class="form-label-dash" style="color:#7a869a;">Job Title</label>
+                                <h4 id="show_job_title" style="font-weight:700;color:#1a2035;margin:0;"></h4>
                             </div>
                             <div class="mb-3">
-                                <label class="form-label-dash" style="color:#7a869a;">Category</label>
-                                <div id="show_category"></div>
+                                <label class="form-label-dash" style="color:#7a869a;">Company</label>
+                                <p id="show_company" style="color:#2f7bff;font-size:15px;font-weight:600;"></p>
                             </div>
                             <div class="mb-3">
-                                <label class="form-label-dash" style="color:#7a869a;">Skill Level</label>
-                                <div id="show_level"></div>
+                                <label class="form-label-dash" style="color:#7a869a;">Period</label>
+                                <p id="show_period" style="color:#1a2035;"></p>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label-dash" style="color:#7a869a;">Description</label>
+                                <p id="show_description" style="color:#1a2035;line-height:1.5;white-space:pre-line;"></p>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label-dash" style="color:#7a869a;">Sort Order</label>
+                                <p id="show_sort_order" style="color:#1a2035;"></p>
                             </div>
                             <div class="mb-3">
                                 <label class="form-label-dash" style="color:#7a869a;">Status</label>
                                 <div id="show_status"></div>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label-dash" style="color:#7a869a;">Created At</label>
-                                <p id="show_created" style="color:#1a2035;margin:0;"></p>
                             </div>
                         </div>
                     </div>
@@ -675,11 +629,11 @@
         <div class="modal-dialog modal-sm">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" style="font-weight:700;"><i class="bi bi-trash-fill me-2"></i>Delete Skill</h5>
+                    <h5 class="modal-title" style="font-weight:700;"><i class="bi bi-trash-fill me-2"></i>Delete Experience</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <p style="font-size:14px;color:#1a2035;">Are you sure you want to delete <strong id="delete_skill_name"></strong>?</p>
+                    <p style="font-size:14px;color:#1a2035;">Are you sure you want to delete <strong id="delete_experience_name"></strong>?</p>
                     <p style="font-size:13px;color:#7a869a;">This action cannot be undone.</p>
                 </div>
                 <div class="modal-footer">
@@ -701,53 +655,92 @@
         new bootstrap.Modal(document.getElementById(id)).show();
     }
 
-    function openEdit(id, name, category, level) {
-        document.getElementById('editForm').action = `/dashboard/skills/${id}`;
-        document.getElementById('edit_name').value = name;
-        document.getElementById('edit_category').value = category || '';
-        const levelInput = document.getElementById('edit_level');
-        const levelOutput = document.getElementById('edit_level_output');
-        levelInput.value = level || 0;
-        levelOutput.value = level || 0 + '%';
-        levelOutput.textContent = (level || 0) + '%';
+    function openEdit(id, jobTitle, company, startDate, endDate, description, sortOrder) {
+        document.getElementById('editForm').action = `/dashboard/experiences/${id}`;
+        document.getElementById('edit_job_title').value = jobTitle;
+        document.getElementById('edit_company').value = company;
+        document.getElementById('edit_start_date').value = startDate;
+        document.getElementById('edit_end_date').value = endDate || '';
+        document.getElementById('edit_description').value = description || '';
+        document.getElementById('edit_sort_order').value = sortOrder || 0;
+
+        // Fetch is_active status via AJAX
+        fetch(`/dashboard/experiences/${id}`, {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                document.getElementById('edit_is_active').checked = data.experience.is_active;
+            }
+        });
+
         new bootstrap.Modal(document.getElementById('editModal')).show();
     }
 
-    function openShow(id, name, category, level) {
-        document.getElementById('show_name').innerText = name;
+    function openShow(id, jobTitle, company, startDate, endDate, description, sortOrder) {
+        document.getElementById('show_job_title').innerText = jobTitle;
+        document.getElementById('show_company').innerHTML = company;
 
-        // Category badge
-        let catClass = '';
-        if (category === 'Frontend') catClass = 'badge-frontend';
-        else if (category === 'Backend') catClass = 'badge-backend';
-        else if (category === 'Database') catClass = 'badge-database';
-        else if (category === 'DevOps') catClass = 'badge-devops';
-        else if (category === 'Mobile') catClass = 'badge-mobile';
-        else catClass = 'badge-other';
+        // Format period
+        let start = new Date(startDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long' });
+        let end = endDate ? new Date(endDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long' }) : 'Present';
+        document.getElementById('show_period').innerHTML = `${start} - ${end}`;
 
-        document.getElementById('show_category').innerHTML = `<span class="badge-skill ${catClass}">${category || 'Other'}</span>`;
+        document.getElementById('show_description').innerHTML = description || '—';
+        document.getElementById('show_sort_order').innerHTML = sortOrder || 0;
 
-        // Level display
-        if (level !== null && level !== undefined) {
-            document.getElementById('show_level').innerHTML = `
-                <div style="display: flex; align-items: center; gap: 8px; max-width: 300px;">
-                    <div class="level-bar" style="flex: 1;">
-                        <div class="level-fill" style="width: ${level}%;"></div>
-                    </div>
-                    <span class="level-text">${level}%</span>
-                </div>
-            `;
-        } else {
-            document.getElementById('show_level').innerHTML = '<span style="color:#7a869a;">—</span>';
-        }
+        // Fetch status via AJAX
+        fetch(`/dashboard/experiences/${id}`, {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                if (data.experience.is_active) {
+                    document.getElementById('show_status').innerHTML = '<span class="badge-cat" style="background:#d1fae5;color:#065f46;">Active</span>';
+                } else {
+                    document.getElementById('show_status').innerHTML = '<span class="badge-cat" style="background:#fee2e2;color:#991b1b;">Inactive</span>';
+                }
+            }
+        });
 
         new bootstrap.Modal(document.getElementById('showModal')).show();
     }
 
     function openDeleteModal(id, name) {
-        document.getElementById('delete_skill_name').innerText = name;
-        document.getElementById('deleteForm').action = `/dashboard/skills/${id}`;
+        document.getElementById('delete_experience_name').innerText = name;
+        document.getElementById('deleteForm').action = `/dashboard/experiences/${id}`;
         new bootstrap.Modal(document.getElementById('deleteModal')).show();
+    }
+
+    function applyFilters() {
+        const search = document.getElementById('searchInput').value;
+        const status = document.getElementById('statusFilter').value;
+        const url = new URL(window.location.href);
+
+        if (search) {
+            url.searchParams.set('search', search);
+        } else {
+            url.searchParams.delete('search');
+        }
+
+        if (status) {
+            url.searchParams.set('status', status);
+        } else {
+            url.searchParams.delete('status');
+        }
+
+        url.searchParams.delete('page');
+        window.location.href = url.toString();
+    }
+
+    function clearFilters() {
+        window.location.href = '{{ route("dashboard.experiences.index") }}';
     }
 
     // Auto-open create modal if validation failed
@@ -755,18 +748,11 @@
         openModal('createModal');
     @endif
 
-    // Level range input update
-    document.addEventListener('DOMContentLoaded', function() {
-        const rangeInputs = document.querySelectorAll('input[type="range"]');
-        rangeInputs.forEach(input => {
-            const output = input.nextElementSibling;
-            if (output && output.tagName === 'OUTPUT') {
-                input.addEventListener('input', function() {
-                    output.value = this.value;
-                    output.textContent = this.value + '%';
-                });
-            }
-        });
+    // Allow Enter key to submit filter
+    document.getElementById('searchInput')?.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            applyFilters();
+        }
     });
 </script>
 @endpush

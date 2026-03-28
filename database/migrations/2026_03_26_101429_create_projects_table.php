@@ -23,7 +23,8 @@ return new class extends Migration
             $table->string('demo_link')->nullable();
             $table->text('technologies')->nullable();
             $table->integer('sort_order')->nullable();
-            $table->boolean('is_active')->default('is_active');
+            // $table->boolean('is_active')->default('is_active');
+            $table->boolean('is_active')->default(true);
 
             $table->timestamps();
         });

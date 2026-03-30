@@ -1379,7 +1379,7 @@
                         <p>Projects</p><small>Manage portfolio projects</small>
                     </div>
                 </div>
-                <div class="s-item" onclick="goto('{{ route('profile.edit') }}')">
+                <div class="s-item" onclick="goto('{{ route('dashboard.profile.edit') }}')">
                     <div class="s-icon" style="background:rgba(249,83,198,.1);color:#f953c6;"><i
                             class="bi bi-person-lines-fill"></i></div>
                     <div>
@@ -1405,9 +1405,7 @@
     {{-- ── TOAST CONTAINER ── --}}
     <div id="toast-container"></div>
 
-    {{-- ════════════════════════════════════════
-     SIDEBAR
-════════════════════════════════════════ --}}
+    {{-- ════════════════════════════════════════ SIDEBAR ════════════════════════════════════════ --}}
     <nav id="sidebar">
 
         <a href="{{ route('dashboard.index') }}" class="sidebar-brand">
@@ -1426,7 +1424,7 @@
                         class="{{ request()->routeIs('dashboard.index') ? 'active' : '' }}">
                         <i class="bi bi-grid-1x2-fill"></i> Dashboard
                     </a></li>
-                <li><a href="{{ route('dashboard.profile') }}"
+                <li><a href="{{ route('dashboard.profile.edit') }}"
                         class="{{ request()->routeIs('dashboard.profile*') ? 'active' : '' }}">
                         <i class="bi bi-person-lines-fill"></i> Profile
                     </a></li>
@@ -1438,10 +1436,6 @@
                 <li><a href="{{ route('dashboard.skills.index') }}"
                         class="{{ request()->routeIs('dashboard.skills*') ? 'active' : '' }}">
                         <i class="bi bi-lightning-charge-fill"></i> Skills
-                    </a></li>
-                <li><a href="{{ route('dashboard.resume') }}"
-                        class="{{ request()->routeIs('dashboard.resume*') ? 'active' : '' }}">
-                        <i class="bi bi-file-earmark-person-fill"></i> Resume
                     </a></li>
                 <li><a href="{{ route('dashboard.experiences.index') }}"
                         class="{{ request()->routeIs('dashboard.experiences*') ? 'active' : '' }}">
@@ -1465,16 +1459,14 @@
                             <span class="nav-badge danger">{{ $unreadCount }}</span>
                         @endif
                     </a></li>
-
+                <li><a href="{{ route('dashboard.resume') }}"
+                        class="{{ request()->routeIs('dashboard.resume*') ? 'active' : '' }}">
+                        <i class="bi bi-file-earmark-person-fill"></i> Resume
+                    </a></li>
             </ul>
 
             <div class="nav-group-label">Manage</div>
             <ul class="sidebar-nav">
-                <li><a href="{{ route('dashboard.messages.index') }}"
-                        class="{{ request()->routeIs('dashboard.messages.index*') ? 'active' : '' }}">
-                        <i class="bi bi-envelope-fill"></i> Messages
-                        <span class="nav-badge danger">3</span>
-                    </a></li>
                 <li><a href="{{ route('dashboard.analytics') }}"
                         class="{{ request()->routeIs('dashboard.analytics*') ? 'active' : '' }}">
                         <i class="bi bi-bar-chart-fill"></i> Analytics
@@ -1491,11 +1483,11 @@
 
             <div class="nav-group-label">Account</div>
             <ul class="sidebar-nav">
-                <li><a href="{{ route('profile.edit') }}"
-                        class="{{ request()->routeIs('profile*') ? 'active' : '' }}">
+                <li><a href="{{ route('dashboard.profile.edit') }}"
+                        class="{{ request()->routeIs('dashboard.profile*') ? 'active' : '' }}">
                         <i class="bi bi-person-circle"></i> Edit Profile
                     </a></li>
-                <li><a href="{{ route('password.edit') }}"
+                <li><a href="{{ route('dashboard.password.edit') }}"
                         class="{{ request()->routeIs('password*') ? 'active' : '' }}">
                         <i class="bi bi-shield-lock-fill"></i> Change Password
                     </a></li>
@@ -1511,14 +1503,14 @@
         </div>
 
         <div class="sidebar-footer">
-            <a href="{{ route('profile.edit') }}" class="user-card">
+            <a href="{{ route('dashboard.profile.edit') }}" class="user-card">
                 <div class="user-avatar-sb">
-                    M
+                    {{ substr(Auth::user()->name ?? 'M', 0, 1) }}
                     <span class="status-dot"></span>
                 </div>
                 <div>
-                    <span class="user-name">Mo'men Sarsour</span>
-                    <span class="user-role">Full Stack Developer</span>
+                    <span class="user-name">{{ Auth::user()->name ?? 'Mo\'men Sarsour' }}</span>
+                    <span class="user-role">{{ Auth::user()->role ?? 'Full Stack Developer' }}</span>
                 </div>
                 <i class="bi bi-chevron-right user-menu-arrow"></i>
             </a>
@@ -1596,7 +1588,8 @@
                             <div class="notif-icon" style="background:rgba(249,83,198,.12);color:#f953c6;"><i
                                     class="bi bi-envelope-fill"></i></div>
                             <div class="notif-body">
-                                <p>New message from <strong>momensarsour5@gmail.com</strong></p>
+                                <p>New message from <strong>{{ Auth::user()->email ?? 'user@example.com' }}</strong>
+                                </p>
                                 <span class="notif-time"><i class="bi bi-clock" style="font-size:10px;"></i> 1 hour
                                     ago</span>
                             </div>
@@ -1677,20 +1670,20 @@
             <div style="position:relative;">
                 <div class="topbar-avatar" id="userAvatarBtn" onclick="togglePanel('userMenuPanel')" role="button"
                     aria-haspopup="true" title="Account menu">
-                    M
+                    {{ substr(Auth::user()->name ?? 'M', 0, 1) }}
                     <span class="online-ring"></span>
                 </div>
                 <div class="drop-panel user-panel" id="userMenuPanel">
                     <div class="user-panel-header">
-                        <div class="user-panel-av">M</div>
+                        <div class="user-panel-av">{{ substr(Auth::user()->name ?? 'M', 0, 1) }}</div>
                         <div>
-                            <div class="user-panel-name">Mo'men Sarsour</div>
-                            <div class="user-panel-role">Full Stack Developer</div>
-                            <div class="user-panel-email">momensarsour5@gmail.com</div>
+                            <div class="user-panel-name">{{ Auth::user()->name ?? 'Mo\'men Sarsour' }}</div>
+                            <div class="user-panel-role">{{ Auth::user()->role ?? 'Full Stack Developer' }}</div>
+                            <div class="user-panel-email">{{ Auth::user()->email ?? 'momensarsour5@gmail.com' }}</div>
                         </div>
                     </div>
                     <div class="user-menu-list">
-                        <a href="{{ route('profile.edit') }}" class="umenu-item">
+                        <a href="{{ route('dashboard.profile.edit') }}" class="umenu-item">
                             <i class="bi bi-person-fill" style="color:#667eea;"></i>
                             My Profile
                             <span class="umenu-tag" style="background:#f0f2ff;color:#667eea;">Edit</span>
@@ -1799,8 +1792,8 @@
 
     <script>
         /* ============================================================
-       SIDEBAR
-    ============================================================ */
+               SIDEBAR
+            ============================================================ */
         function toggleSidebar() {
             document.getElementById('sidebar').classList.toggle('open');
             document.getElementById('sidebar-overlay').classList.toggle('open');
@@ -1897,14 +1890,6 @@
                 url: '{{ route('dashboard.projects.index') }}'
             },
             {
-                title: 'Profile',
-                sub: 'Edit your info',
-                icon: 'bi-person-lines-fill',
-                color: '#f953c6',
-                bg: 'rgba(249,83,198,.1)',
-                url: '{{ route('dashboard.profile') }}'
-            },
-            {
                 title: 'Skills',
                 sub: 'Skill levels & bars',
                 icon: 'bi-lightning-charge-fill',
@@ -1913,12 +1898,28 @@
                 url: '{{ route('dashboard.skills.index') }}'
             },
             {
-                title: 'Resume',
-                sub: 'Your CV & experience',
-                icon: 'bi-file-earmark-person-fill',
+                title: 'Experiences',
+                sub: 'Work experience',
+                icon: 'bi-briefcase-fill',
                 color: '#667eea',
                 bg: 'rgba(102,126,234,.1)',
-                url: '{{ route('dashboard.resume') }}'
+                url: '{{ route('dashboard.experiences.index') }}'
+            },
+            {
+                title: 'Education',
+                sub: 'Educational background',
+                icon: 'bi-mortarboard-fill',
+                color: '#22c55e',
+                bg: 'rgba(34,197,94,.1)',
+                url: '{{ route('dashboard.education.index') }}'
+            },
+            {
+                title: 'Social Links',
+                sub: 'Social media profiles',
+                icon: 'bi-share-fill',
+                color: '#f953c6',
+                bg: 'rgba(249,83,198,.1)',
+                url: '{{ route('dashboard.social-links.index') }}'
             },
             {
                 title: 'Messages',
@@ -1927,6 +1928,22 @@
                 color: '#ef4444',
                 bg: 'rgba(239,68,68,.1)',
                 url: '{{ route('dashboard.messages.index') }}'
+            },
+            {
+                title: 'Profile',
+                sub: 'Edit your info',
+                icon: 'bi-person-lines-fill',
+                color: '#f97316',
+                bg: 'rgba(249,115,22,.1)',
+                url: '{{ route('dashboard.profile.edit') }}'
+            },
+            {
+                title: 'Resume',
+                sub: 'Your CV & experience',
+                icon: 'bi-file-earmark-person-fill',
+                color: '#0ea5e9',
+                bg: 'rgba(14,165,233,.1)',
+                url: '{{ route('dashboard.resume') }}'
             },
             {
                 title: 'Analytics',
@@ -1940,25 +1957,17 @@
                 title: 'Clients',
                 sub: 'Client management',
                 icon: 'bi-people-fill',
-                color: '#22c55e',
-                bg: 'rgba(34,197,94,.1)',
+                color: '#f59e0b',
+                bg: 'rgba(245,158,11,.1)',
                 url: '{{ route('dashboard.clients') }}'
             },
             {
                 title: 'Settings',
                 sub: 'Account & preferences',
                 icon: 'bi-gear-fill',
-                color: '#0ea5e9',
-                bg: 'rgba(14,165,233,.1)',
-                url: '{{ route('dashboard.settings') }}'
-            },
-            {
-                title: 'Edit Profile',
-                sub: 'Breeze profile page',
-                icon: 'bi-person-circle',
                 color: '#8b5cf6',
                 bg: 'rgba(139,92,246,.1)',
-                url: '{{ route('profile.edit') }}'
+                url: '{{ route('dashboard.settings') }}'
             },
         ];
 
@@ -1982,11 +1991,11 @@
             if (!val.trim()) {
                 r.innerHTML = `
             <div class="s-label">Quick Links</div>
-            ${searchPages.slice(0,4).map(p => `
-                <div class="s-item" onclick="goto('${p.url}')">
-                    <div class="s-icon" style="background:${p.bg};color:${p.color};"><i class="bi ${p.icon}"></i></div>
-                    <div><p>${p.title}</p><small>${p.sub}</small></div>
-                </div>`).join('')}`;
+            ${searchPages.slice(0,6).map(p => `
+                        <div class="s-item" onclick="goto('${p.url}')">
+                            <div class="s-icon" style="background:${p.bg};color:${p.color};"><i class="bi ${p.icon}"></i></div>
+                            <div><p>${p.title}</p><small>${p.sub}</small></div>
+                        </div>`).join('')}`;
                 return;
             }
             const found = searchPages.filter(p =>
@@ -2093,6 +2102,24 @@
         function goto(url) {
             window.location.href = url;
         }
+
+        // Update unread messages count in sidebar periodically
+        setInterval(function() {
+            fetch('{{ route('dashboard.messages.unread') }}')
+                .then(response => response.json())
+                .then(data => {
+                    const badge = document.querySelector('.sidebar-nav a[href*="messages"] .nav-badge');
+                    if (badge) {
+                        if (data.count > 0) {
+                            badge.textContent = data.count;
+                            badge.style.display = 'inline-flex';
+                        } else {
+                            badge.style.display = 'none';
+                        }
+                    }
+                })
+                .catch(err => console.log('Error fetching unread count'));
+        }, 30000);
     </script>
 
     @stack('scripts')

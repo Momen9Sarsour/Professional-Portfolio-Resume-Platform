@@ -1459,7 +1459,7 @@
                             <span class="nav-badge danger">{{ $unreadCount }}</span>
                         @endif
                     </a></li>
-                <li><a href="{{ route('dashboard.resume') }}"
+                <li><a href="{{ route('dashboard.resume.index') }}"
                         class="{{ request()->routeIs('dashboard.resume*') ? 'active' : '' }}">
                         <i class="bi bi-file-earmark-person-fill"></i> Resume
                     </a></li>
@@ -1471,7 +1471,7 @@
                         class="{{ request()->routeIs('dashboard.analytics*') ? 'active' : '' }}">
                         <i class="bi bi-bar-chart-fill"></i> Analytics
                     </a></li>
-                <li><a href="{{ route('dashboard.clients') }}"
+                <li><a href="{{ route('dashboard.clients.index') }}"
                         class="{{ request()->routeIs('dashboard.clients*') ? 'active' : '' }}">
                         <i class="bi bi-people-fill"></i> Clients
                     </a></li>
@@ -1943,7 +1943,7 @@
                 icon: 'bi-file-earmark-person-fill',
                 color: '#0ea5e9',
                 bg: 'rgba(14,165,233,.1)',
-                url: '{{ route('dashboard.resume') }}'
+                url: '{{ route('dashboard.resume.index') }}'
             },
             {
                 title: 'Analytics',
@@ -1959,7 +1959,7 @@
                 icon: 'bi-people-fill',
                 color: '#f59e0b',
                 bg: 'rgba(245,158,11,.1)',
-                url: '{{ route('dashboard.clients') }}'
+                url: '{{ route('dashboard.clients.index') }}'
             },
             {
                 title: 'Settings',

@@ -14,9 +14,19 @@ class EducationController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Education::where('user_id', Auth::id());
+        $query = Education::query();
 
-        // Filter by search (university or degree)
+        // Admin can see all education, user sees only their own
+        if (Auth::user()->role !== 'admin') {
+            $query->where('user_id', Auth::id());
+        }
+
+        // Filter by specific user (admin only)
+        if ($request->filled('user_id') && Auth::user()->role === 'admin') {
+            $query->where('user_id', $request->user_id);
+        }
+
+        // Filter by search
         if ($request->filled('search')) {
             $query->where(function ($q) use ($request) {
                 $q->where('university', 'like', '%' . $request->search . '%')
@@ -31,7 +41,10 @@ class EducationController extends Controller
 
         $education = $query->orderBy('sort_order')->orderBy('start_date', 'desc')->paginate(10)->withQueryString();
 
-        return view('dashboard.education.index', compact('education'));
+        // Get users for admin filter
+        $users = Auth::user()->role === 'admin' ? \App\Models\User::all() : collect();
+
+        return view('dashboard.education.index', compact('education', 'users'));
     }
 
     /**
@@ -47,13 +60,29 @@ class EducationController extends Controller
             'description' => 'nullable|string',
             'sort_order' => 'nullable|integer|min:0',
             'is_active' => 'nullable|boolean',
+            'user_id' => 'nullable|exists:users,id',
         ]);
 
-        $validated['user_id'] = Auth::id();
+        // Determine user_id (admin can assign to any user)
+        if (Auth::user()->role === 'admin' && $request->filled('user_id')) {
+            $validated['user_id'] = $request->user_id;
+            $redirectUserId = $request->user_id;
+        } else {
+            $validated['user_id'] = Auth::id();
+            $redirectUserId = Auth::id();
+        }
+
         $validated['is_active'] = $request->boolean('is_active');
         $validated['sort_order'] = $request->input('sort_order', 0);
 
         Education::create($validated);
+
+        // Redirect to client page if admin
+        if (Auth::user()->role === 'admin' && isset($redirectUserId)) {
+            return redirect()
+                ->route('dashboard.clients.show', $redirectUserId)
+                ->with('success', 'Education added successfully for user!');
+        }
 
         return redirect()
             ->route('dashboard.education.index')
@@ -67,7 +96,8 @@ class EducationController extends Controller
     {
         $education = Education::findOrFail($id);
 
-        if ($education->user_id !== Auth::id() && Auth::user()->role !== 'admin') {
+        // Check authorization
+        if (Auth::user()->role !== 'admin' && $education->user_id !== Auth::id()) {
             abort(403);
         }
 
@@ -86,7 +116,8 @@ class EducationController extends Controller
      */
     public function update(Request $request, Education $education)
     {
-        if ($education->user_id !== Auth::id() && Auth::user()->role !== 'admin') {
+        // Check authorization
+        if (Auth::user()->role !== 'admin' && $education->user_id !== Auth::id()) {
             abort(403);
         }
 
@@ -98,12 +129,28 @@ class EducationController extends Controller
             'description' => 'nullable|string',
             'sort_order' => 'nullable|integer|min:0',
             'is_active' => 'nullable|boolean',
+            'user_id' => 'nullable|exists:users,id',
         ]);
+
+        // Admin can reassign education to another user
+        if (Auth::user()->role === 'admin' && $request->filled('user_id')) {
+            $education->user_id = $request->user_id;
+            $redirectUserId = $request->user_id;
+        } else {
+            $redirectUserId = $education->user_id;
+        }
 
         $validated['is_active'] = $request->boolean('is_active');
         $validated['sort_order'] = $request->input('sort_order', 0);
 
         $education->update($validated);
+
+        // Redirect to client page if admin
+        if (Auth::user()->role === 'admin' && isset($redirectUserId)) {
+            return redirect()
+                ->route('dashboard.clients.show', $redirectUserId)
+                ->with('success', 'Skill updated successfully for user!');
+        }
 
         return redirect()
             ->route('dashboard.education.index')
@@ -115,7 +162,8 @@ class EducationController extends Controller
      */
     public function toggle(Education $education)
     {
-        if ($education->user_id !== Auth::id() && Auth::user()->role !== 'admin') {
+        // Check authorization
+        if (Auth::user()->role !== 'admin' && $education->user_id !== Auth::id()) {
             abort(403);
         }
 
@@ -133,12 +181,21 @@ class EducationController extends Controller
      */
     public function destroy(Education $education)
     {
-        if ($education->user_id !== Auth::id() && Auth::user()->role !== 'admin') {
+        // Check authorization
+        if (Auth::user()->role !== 'admin' && $education->user_id !== Auth::id()) {
             abort(403);
         }
 
         $degree = $education->degree;
+        $userId = $education->user_id;
         $education->delete();
+
+        // Redirect to client page if admin
+        if (Auth::user()->role === 'admin') {
+            return redirect()
+                ->route('dashboard.clients.show', $userId)
+                ->with('success', 'Education "' . $degree . '" deleted successfully!');
+        }
 
         return redirect()
             ->route('dashboard.education.index')

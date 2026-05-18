@@ -8,6 +8,10 @@ class Skill extends Model
 {
     protected $guarded = [];
 
+    protected $casts = [
+        'is_active' => 'boolean',
+        'level' => 'integer',
+    ];
 
     public function user()
     {

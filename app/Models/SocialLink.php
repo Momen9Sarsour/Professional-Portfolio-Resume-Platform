@@ -7,4 +7,13 @@ use Illuminate\Database\Eloquent\Model;
 class SocialLink extends Model
 {
     protected $guarded = [];
+
+    protected $casts = [
+        'is_active' => 'boolean',
+    ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }

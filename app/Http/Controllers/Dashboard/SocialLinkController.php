@@ -14,7 +14,17 @@ class SocialLinkController extends Controller
      */
     public function index(Request $request)
     {
-        $query = SocialLink::where('user_id', Auth::id());
+        $query = SocialLink::query();
+
+        // Admin can see all social links, user sees only their own
+        if (Auth::user()->role !== 'admin') {
+            $query->where('user_id', Auth::id());
+        }
+
+        // Filter by specific user (admin only)
+        if ($request->filled('user_id') && Auth::user()->role === 'admin') {
+            $query->where('user_id', $request->user_id);
+        }
 
         // Filter by platform
         if ($request->filled('platform')) {
@@ -28,7 +38,10 @@ class SocialLinkController extends Controller
 
         $socialLinks = $query->orderBy('platform')->paginate(10)->withQueryString();
 
-        return view('dashboard.social-links.index', compact('socialLinks'));
+        // Get users for admin filter
+        $users = Auth::user()->role === 'admin' ? \App\Models\User::all() : collect();
+
+        return view('dashboard.social-links.index', compact('socialLinks', 'users'));
     }
 
     /**
@@ -40,12 +53,29 @@ class SocialLinkController extends Controller
             'platform' => 'required|string|max:255|in:github,linkedin,twitter,facebook,instagram,youtube,whatsapp,telegram,other',
             'url' => 'required|url|max:500',
             'is_active' => 'nullable|boolean',
+            'user_id' => 'nullable|exists:users,id',
         ]);
 
-        $validated['user_id'] = Auth::id();
+        // Determine user_id (admin can assign to any user)
+        // Determine user_id
+        if (Auth::user()->role === 'admin' && $request->filled('user_id')) {
+            $validated['user_id'] = $request->user_id;
+            $redirectUserId = $request->user_id;
+        } else {
+            $validated['user_id'] = Auth::id();
+            $redirectUserId = Auth::id();
+        }
+
         $validated['is_active'] = $request->boolean('is_active');
 
         SocialLink::create($validated);
+
+        // Redirect to client page if admin
+        if (Auth::user()->role === 'admin' && isset($redirectUserId)) {
+            return redirect()
+                ->route('dashboard.clients.show', $redirectUserId)
+                ->with('success', 'Social link added successfully for user!');
+        }
 
         return redirect()
             ->route('dashboard.social-links.index')
@@ -59,7 +89,8 @@ class SocialLinkController extends Controller
     {
         $socialLink = SocialLink::findOrFail($id);
 
-        if ($socialLink->user_id !== Auth::id() && Auth::user()->role !== 'admin') {
+        // Check authorization
+        if (Auth::user()->role !== 'admin' && $socialLink->user_id !== Auth::id()) {
             abort(403);
         }
 
@@ -78,7 +109,8 @@ class SocialLinkController extends Controller
      */
     public function update(Request $request, SocialLink $socialLink)
     {
-        if ($socialLink->user_id !== Auth::id() && Auth::user()->role !== 'admin') {
+        // Check authorization
+        if (Auth::user()->role !== 'admin' && $socialLink->user_id !== Auth::id()) {
             abort(403);
         }
 
@@ -86,11 +118,28 @@ class SocialLinkController extends Controller
             'platform' => 'required|string|max:255|in:github,linkedin,twitter,facebook,instagram,youtube,whatsapp,telegram,other',
             'url' => 'required|url|max:500',
             'is_active' => 'nullable|boolean',
+            'user_id' => 'nullable|exists:users,id',
         ]);
+
+        // Admin can reassign social link to another user
+        // Admin can reassign
+        if (Auth::user()->role === 'admin' && $request->filled('user_id')) {
+            $socialLink->user_id = $request->user_id;
+            $redirectUserId = $request->user_id;
+        } else {
+            $redirectUserId = $socialLink->user_id;
+        }
 
         $validated['is_active'] = $request->boolean('is_active');
 
         $socialLink->update($validated);
+
+        // Redirect to client page if admin
+        if (Auth::user()->role === 'admin' && isset($redirectUserId)) {
+            return redirect()
+                ->route('dashboard.clients.show', $redirectUserId)
+                ->with('success', 'Social Link updated successfully for user!');
+        }
 
         return redirect()
             ->route('dashboard.social-links.index')
@@ -102,7 +151,8 @@ class SocialLinkController extends Controller
      */
     public function toggle(SocialLink $socialLink)
     {
-        if ($socialLink->user_id !== Auth::id() && Auth::user()->role !== 'admin') {
+        // Check authorization
+        if (Auth::user()->role !== 'admin' && $socialLink->user_id !== Auth::id()) {
             abort(403);
         }
 
@@ -120,12 +170,21 @@ class SocialLinkController extends Controller
      */
     public function destroy(SocialLink $socialLink)
     {
-        if ($socialLink->user_id !== Auth::id() && Auth::user()->role !== 'admin') {
+        // Check authorization
+        if (Auth::user()->role !== 'admin' && $socialLink->user_id !== Auth::id()) {
             abort(403);
         }
 
         $platform = $socialLink->platform;
+        $userId = $socialLink->user_id;
         $socialLink->delete();
+
+        // Redirect to client page if admin
+        if (Auth::user()->role === 'admin') {
+            return redirect()
+                ->route('dashboard.clients.show', $userId)
+                ->with('success', 'Social Link "' . $platform . '" deleted successfully!');
+        }
 
         return redirect()
             ->route('dashboard.social-links.index')

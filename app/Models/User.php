@@ -18,11 +18,12 @@ class User extends Authenticatable
      *
      * @var list<string>
      */
-    protected $fillable = [
-        'name',
-        'email',
-        'password',
-    ];
+    // protected $fillable = [
+    //     'name',
+    //     'email',
+    //     'password',
+    // ];
+    protected $guarded = [];
 
     /**
      * The attributes that should be hidden for serialization.
@@ -47,13 +48,33 @@ class User extends Authenticatable
         ];
     }
 
-    public function skills()
-    {
-        return $this->hasMany(Skill::class);
-    }
-    
     public function profile()
     {
         return $this->hasOne(Profile::class);
+    }
+
+    public function projects()
+    {
+        return $this->hasMany(Project::class)->orderBy('sort_order');
+    }
+
+    public function skills()
+    {
+        return $this->hasMany(Skill::class)->orderBy('name');
+    }
+
+    public function experiences()
+    {
+        return $this->hasMany(Experience::class)->orderBy('start_date', 'desc');
+    }
+
+    public function education()
+    {
+        return $this->hasMany(Education::class)->orderBy('start_date', 'desc');
+    }
+
+    public function socialLinks()
+    {
+        return $this->hasMany(SocialLink::class)->orderBy('platform');
     }
 }

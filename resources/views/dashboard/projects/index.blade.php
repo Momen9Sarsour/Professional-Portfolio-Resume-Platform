@@ -557,6 +557,9 @@
                 <form action="{{ route('dashboard.projects.store') }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     <div class="modal-body">
+                        @if (request()->has('user_id'))
+                            <input type="hidden" name="user_id" value="{{ request('user_id') }}">
+                        @endif
                         <div class="row g-3">
                             <div class="col-md-8">
                                 <label class="form-label-dash">Project Title *</label>
@@ -637,6 +640,9 @@
                 <form id="editForm" method="POST" enctype="multipart/form-data">
                     @csrf @method('PUT')
                     <div class="modal-body">
+                        @if (request()->has('user_id'))
+                            <input type="hidden" name="user_id" value="{{ request('user_id') }}">
+                        @endif
                         <div class="row g-3">
                             <div class="col-md-8">
                                 <label class="form-label-dash">Project Title *</label>
@@ -782,6 +788,9 @@
                     <button type="button" class="btn-light-dash" data-bs-dismiss="modal">Cancel</button>
                     <form id="deleteForm" method="POST" style="display:inline;">
                         @csrf @method('DELETE')
+                        @if (request()->has('user_id'))
+                            <input type="hidden" name="user_id" value="{{ request('user_id') }}">
+                        @endif
                         <button type="submit" class="btn-danger-dash"><i class="bi bi-trash-fill me-1"></i>
                             Delete</button>
                     </form>

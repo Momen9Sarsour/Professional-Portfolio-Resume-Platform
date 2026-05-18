@@ -16,12 +16,17 @@ class SkillController extends Controller
     {
         $query = Skill::query();
 
-        // Admin vs User
+        // Admin can see all skills, user sees only their own
         if (Auth::user()->role !== 'admin') {
             $query->where('user_id', Auth::id());
         }
 
-        // Filter by name/search
+        // Filter by specific user (admin only)
+        if ($request->filled('user_id') && Auth::user()->role === 'admin') {
+            $query->where('user_id', $request->user_id);
+        }
+
+        // Filter by name
         if ($request->filled('search')) {
             $query->where('name', 'like', '%' . $request->search . '%');
         }
@@ -41,7 +46,10 @@ class SkillController extends Controller
         // Get unique categories for filter
         $categories = Skill::distinct()->pluck('category')->filter()->values();
 
-        return view('dashboard.skills.index', compact('skills', 'categories'));
+        // Get users for admin filter
+        $users = Auth::user()->role === 'admin' ? \App\Models\User::all() : collect();
+
+        return view('dashboard.skills.index', compact('skills', 'categories', 'users'));
     }
 
     /**
@@ -54,12 +62,29 @@ class SkillController extends Controller
             'level' => 'nullable|integer|min:0|max:100',
             'category' => 'nullable|string|max:255',
             'is_active' => 'nullable|boolean',
+            'user_id' => 'nullable|exists:users,id',
         ]);
 
-        $validated['user_id'] = Auth::id();
+        // Determine user_id (admin can assign to any user)
+        // 🔥 IMPORTANT: Determine user_id
+        if (Auth::user()->role === 'admin' && $request->filled('user_id')) {
+            $validated['user_id'] = $request->user_id;
+            $redirectUserId = $request->user_id;
+        } else {
+            $validated['user_id'] = Auth::id();
+            $redirectUserId = Auth::id();
+        }
+
         $validated['is_active'] = $request->boolean('is_active');
 
         Skill::create($validated);
+
+        // 🔥 IMPORTANT: Redirect back to client page if admin
+        if (Auth::user()->role === 'admin' && isset($redirectUserId)) {
+            return redirect()
+                ->route('dashboard.clients.show', $redirectUserId)
+                ->with('success', 'Skill added successfully for user!');
+        }
 
         return redirect()
             ->route('dashboard.skills.index')
@@ -103,11 +128,28 @@ class SkillController extends Controller
             'level' => 'nullable|integer|min:0|max:100',
             'category' => 'nullable|string|max:255',
             'is_active' => 'nullable|boolean',
+            'user_id' => 'nullable|exists:users,id',
         ]);
+
+        // Admin can reassign skill to another user
+        // Admin can reassign
+        if (Auth::user()->role === 'admin' && $request->filled('user_id')) {
+            $skill->user_id = $request->user_id;
+            $redirectUserId = $request->user_id;
+        } else {
+            $redirectUserId = $skill->user_id;
+        }
 
         $validated['is_active'] = $request->boolean('is_active');
 
         $skill->update($validated);
+
+        // Redirect to client page if admin
+        if (Auth::user()->role === 'admin' && isset($redirectUserId)) {
+            return redirect()
+                ->route('dashboard.clients.show', $redirectUserId)
+                ->with('success', 'Skill updated successfully for user!');
+        }
 
         return redirect()
             ->route('dashboard.skills.index')
@@ -144,10 +186,18 @@ class SkillController extends Controller
         }
 
         $name = $skill->name;
+        $userId = $skill->user_id;
         $skill->delete();
+
+        // Redirect to client page if admin
+        if (Auth::user()->role === 'admin') {
+            return redirect()
+                ->route('dashboard.clients.show', $userId)
+                ->with('success', 'Skill "' . $name . '" deleted successfully!');
+        }
 
         return redirect()
             ->route('dashboard.skills.index')
-            ->with('success', 'Skill "' . $name . '" deleted successfully.');
+            ->with('success', 'Skill "' . $name . '" deleted successfully!');
     }
 }

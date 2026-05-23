@@ -6,11 +6,12 @@ use App\Http\Controllers\Dashboard\DashboardController;
 use App\Http\Controllers\Dashboard\EducationController;
 use App\Http\Controllers\Dashboard\ExperienceController;
 use App\Http\Controllers\Dashboard\MessageController;
+use App\Http\Controllers\Dashboard\ProfileController;
 use App\Http\Controllers\Dashboard\ProjectController;
+use App\Http\Controllers\Dashboard\ResumeController;
+use App\Http\Controllers\Dashboard\SettingsController;
 use App\Http\Controllers\Dashboard\SkillController;
 use App\Http\Controllers\Dashboard\SocialLinkController;
-use App\Http\Controllers\Dashboard\ProfileController;
-use App\Http\Controllers\Dashboard\ResumeController;
 use App\Http\Controllers\ProfileController as BreezeProfileController;
 use Illuminate\Support\Facades\Route;
 
@@ -106,11 +107,23 @@ Route::prefix('dashboard')->name('dashboard.')->middleware(['auth', 'verified'])
         Route::get('/{id}/preview-cv/{template?}', [ClientController::class, 'previewCV'])->name('preview-cv');
     });
 
+    // ── Settings Routes ──────────────────────────────────────────────────────
+    Route::prefix('settings')->name('settings.')->group(function () {
+        Route::get('/', [SettingsController::class, 'index'])->name('index');
+        Route::put('/update', [SettingsController::class, 'update'])->name('update');
+        Route::delete('/reset', [SettingsController::class, 'reset'])->name('reset');
+        Route::post('/test-email', [SettingsController::class, 'testEmail'])->name('test-email');
+        Route::post('/preview-cv', [SettingsController::class, 'previewCV'])->name('preview-cv');
+        Route::post('/download-preview', [SettingsController::class, 'downloadPreview'])->name('download-preview');
+        Route::get('/cv-preview', [SettingsController::class, 'cvPreview'])->name('cv-preview');
+        Route::post('/update-preview', [SettingsController::class, 'updatePreview'])->name('update-preview');
+    });
+
     // ── Resume & Analytics (Future Pages) ───────────────────────────
     // Route::view('/resume', 'dashboard.resume')->name('resume');
     Route::view('/analytics', 'dashboard.analytics')->name('analytics');
     // Route::view('/clients', 'dashboard.clients')->name('clients');
-    Route::get('/settings', [DashboardController::class, 'settings'])->name('settings');
+    // Route::get('/settings', [DashboardController::class, 'settings'])->name('settings');
 });
 
 // Include authentication routes (Breeze)

@@ -15,6 +15,12 @@
 
     @stack('styles')
 
+    @php
+        $primaryColor = \App\Models\Setting::getValue('primary_color', '#2f7bff');
+        $sidebarBg = \App\Models\Setting::getValue('sidebar_bg', '#111827');
+        $defaultTheme = \App\Models\Setting::getValue('default_theme', 'light');
+    @endphp
+
     <style>
         /* ============================================================
            ROOT VARIABLES
@@ -24,10 +30,10 @@
             --topbar-h: 66px;
             --bg: #f0f2f8;
             --white: #ffffff;
-            --sidebar-bg: #111827;
+            /* --sidebar-bg: #111827; */
             --sidebar-border: rgba(255, 255, 255, 0.06);
-            --sidebar-active: #2f7bff;
-            --sidebar-active-glow: rgba(47, 123, 255, 0.35);
+            /* --sidebar-active: #2f7bff; */
+            /* --sidebar-active-glow: rgba(47, 123, 255, 0.35); */
             --sidebar-text: #8b97b0;
             --sidebar-hover: rgba(255, 255, 255, 0.05);
             --text-primary: #0f172a;
@@ -41,6 +47,10 @@
             --font: 'Plus Jakarta Sans', sans-serif;
             --g1: linear-gradient(135deg, #667eea, #764ba2);
             --transition: all .22s cubic-bezier(.4, 0, .2, 1);
+
+            --sidebar-active: {{ $primaryColor }};
+            --sidebar-active-glow: {{ $primaryColor }};
+            --sidebar-bg: {{ $sidebarBg }};
         }
 
         *,
@@ -1347,7 +1357,39 @@
             animation-delay: .3s
         }
     </style>
+
+    @if (session('theme') ?? $defaultTheme == 'dark')
+        <script>
+            document.documentElement.classList.add('dark-theme');
+        </script>
+    @endif
+
+    @if ($customCSS = \App\Models\Setting::getValue('custom_css'))
+        <style>
+            {{ $customCSS }}
+        </style>
+    @endif
+
+    @if ($googleAnalytics = \App\Models\Setting::getValue('google_analytics_id'))
+        <!-- Google Analytics -->
+        <script async src="https://www.googletagmanager.com/gtag/js?id={{ $googleAnalytics }}"></script>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+
+            function gtag() {
+                dataLayer.push(arguments);
+            }
+            gtag('js', new Date());
+            gtag('config', '{{ $googleAnalytics }}');
+        </script>
+    @endif
 </head>
+
+@if ($customJS = \App\Models\Setting::getValue('custom_js'))
+    <script>
+        {{ $customJS }}
+    </script>
+@endif
 
 <body>
 
@@ -1386,7 +1428,7 @@
                         <p>Profile</p><small>Edit personal info</small>
                     </div>
                 </div>
-                <div class="s-item" onclick="goto('{{ route('dashboard.settings') }}')">
+                <div class="s-item" onclick="goto('{{ route('dashboard.settings.index') }}')">
                     <div class="s-icon" style="background:rgba(247,151,30,.1);color:#f7971e;"><i
                             class="bi bi-gear-fill"></i></div>
                     <div>
@@ -1475,7 +1517,7 @@
                         class="{{ request()->routeIs('dashboard.clients*') ? 'active' : '' }}">
                         <i class="bi bi-people-fill"></i> Clients
                     </a></li>
-                <li><a href="{{ route('dashboard.settings') }}"
+                <li><a href="{{ route('dashboard.settings.index') }}"
                         class="{{ request()->routeIs('dashboard.settings*') ? 'active' : '' }}">
                         <i class="bi bi-gear-fill"></i> Settings
                     </a></li>
@@ -1688,7 +1730,7 @@
                             My Profile
                             <span class="umenu-tag" style="background:#f0f2ff;color:#667eea;">Edit</span>
                         </a>
-                        <a href="{{ route('dashboard.settings') }}" class="umenu-item">
+                        <a href="{{ route('dashboard.settings.index') }}" class="umenu-item">
                             <i class="bi bi-gear-fill" style="color:#11998e;"></i>
                             Settings
                         </a>
@@ -1792,8 +1834,8 @@
 
     <script>
         /* ============================================================
-               SIDEBAR
-            ============================================================ */
+                                       SIDEBAR
+                                    ============================================================ */
         function toggleSidebar() {
             document.getElementById('sidebar').classList.toggle('open');
             document.getElementById('sidebar-overlay').classList.toggle('open');
@@ -1967,7 +2009,7 @@
                 icon: 'bi-gear-fill',
                 color: '#8b5cf6',
                 bg: 'rgba(139,92,246,.1)',
-                url: '{{ route('dashboard.settings') }}'
+                url: '{{ route('dashboard.settings.index') }}'
             },
         ];
 
@@ -1992,10 +2034,10 @@
                 r.innerHTML = `
             <div class="s-label">Quick Links</div>
             ${searchPages.slice(0,6).map(p => `
-                        <div class="s-item" onclick="goto('${p.url}')">
-                            <div class="s-icon" style="background:${p.bg};color:${p.color};"><i class="bi ${p.icon}"></i></div>
-                            <div><p>${p.title}</p><small>${p.sub}</small></div>
-                        </div>`).join('')}`;
+                                                <div class="s-item" onclick="goto('${p.url}')">
+                                                    <div class="s-icon" style="background:${p.bg};color:${p.color};"><i class="bi ${p.icon}"></i></div>
+                                                    <div><p>${p.title}</p><small>${p.sub}</small></div>
+                                                </div>`).join('')}`;
                 return;
             }
             const found = searchPages.filter(p =>

@@ -119,9 +119,14 @@ Route::prefix('dashboard')->name('dashboard.')->middleware(['auth', 'verified'])
         Route::post('/update-preview', [SettingsController::class, 'updatePreview'])->name('update-preview');
     });
 
+    // ── Analytics ──────────────────────────────────────────────────────
+    Route::get('/analytics', [DashboardController::class, 'analytics'])->name('analytics');
+    Route::get('/analytics/users-data', [DashboardController::class, 'analyticsUsersData'])->name('analytics.users-data');
+    Route::get('/analytics/export', [DashboardController::class, 'analyticsExport'])->name('analytics.export');
+
     // ── Resume & Analytics (Future Pages) ───────────────────────────
     // Route::view('/resume', 'dashboard.resume')->name('resume');
-    Route::view('/analytics', 'dashboard.analytics')->name('analytics');
+    // Route::view('/analytics', 'dashboard.analytics')->name('analytics');
     // Route::view('/clients', 'dashboard.clients')->name('clients');
     // Route::get('/settings', [DashboardController::class, 'settings'])->name('settings');
 });

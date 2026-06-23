@@ -1521,6 +1521,10 @@
                         class="{{ request()->routeIs('dashboard.settings*') ? 'active' : '' }}">
                         <i class="bi bi-gear-fill"></i> Settings
                     </a></li>
+                <li><a href="{{ route('dashboard.cv-templates.index') }}"
+                        class="{{ request()->routeIs('dashboard.cv-templates*') ? 'active' : '' }}">
+                        <i class="bi bi-gear-fill"></i> cv-templates
+                    </a></li>
             </ul>
 
             <div class="nav-group-label">Account</div>

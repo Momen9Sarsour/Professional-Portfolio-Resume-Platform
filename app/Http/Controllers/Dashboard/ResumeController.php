@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Dashboard;
 
 use App\Http\Controllers\Controller;
+use App\Models\CvTemplate;
 use App\Models\Profile;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -11,56 +12,45 @@ use Barryvdh\DomPDF\Facade\Pdf;
 class ResumeController extends Controller
 {
     /**
-     * Display all available CV templates.
+     * Display all available CV templates from database.
      */
     public function index()
     {
         $user = Auth::user();
         $profile = $user->profile ?? new Profile();
 
-        // Get user's selected template or default to 'modern'
-        $selectedTemplate = $user->cv_template ?? 'modern';
+        // Get user's selected template or default
+        $selectedTemplateId = $user->cv_template_id ?? null;
 
-        // Define available templates
-        $templates = [
-            'modern' => [
-                'name' => 'Modern',
-                'description' => 'Clean and professional with a modern layout',
-                'preview' => asset('images/templates/modern-preview.jpg'),
-                'color' => '#2f7bff',
-                'icon' => 'bi bi-layout-three-columns',
-            ],
-            'minimal' => [
-                'name' => 'Minimal',
-                'description' => 'Simple and elegant minimalist design',
-                'preview' => asset('images/templates/minimal-preview.jpg'),
-                'color' => '#1a2035',
-                'icon' => 'bi bi-square',
-            ],
-            'creative' => [
-                'name' => 'Creative',
-                'description' => 'Bold and creative with accent colors',
-                'preview' => asset('images/templates/creative-preview.jpg'),
-                'color' => '#f97316',
-                'icon' => 'bi bi-brush',
-            ],
-            'professional' => [
-                'name' => 'Professional',
-                'description' => 'Traditional professional layout for corporate roles',
-                'preview' => asset('images/templates/professional-preview.jpg'),
-                'color' => '#0f172a',
-                'icon' => 'bi bi-briefcase',
-            ],
-            'sidebar' => [
-                'name' => 'Sidebar',
-                'description' => 'Two-column layout with sidebar for personal info',
-                'preview' => asset('images/templates/sidebar-preview.jpg'),
-                'color' => '#11998e',
-                'icon' => 'bi bi-grid-1x2',
-            ],
-        ];
+        // Get all active templates from database
+        $templates = CvTemplate::where('is_active', true)
+            ->orderBy('is_default', 'desc')
+            ->orderBy('sort_order')
+            ->get();
 
-        return view('dashboard.resume.index', compact('templates', 'selectedTemplate', 'user', 'profile'));
+        // Get system templates for display
+        $systemTemplates = CvTemplate::where('is_system', true)
+            ->where('is_active', true)
+            ->orderBy('sort_order')
+            ->get();
+
+        // Get custom templates (added by admin)
+        $customTemplates = CvTemplate::where('is_system', false)
+            ->where('is_active', true)
+            ->orderBy('sort_order')
+            ->get();
+
+        $selectedTemplate = $user->cvTemplate ? $user->cvTemplate->slug : 'modern';
+
+        return view('dashboard.resume.index', compact(
+            'templates',
+            'systemTemplates',
+            'customTemplates',
+            'selectedTemplate',
+            'selectedTemplateId',
+            'user',
+            'profile'
+        ));
     }
 
     /**
@@ -69,16 +59,18 @@ class ResumeController extends Controller
     public function saveTemplate(Request $request)
     {
         $request->validate([
-            'template' => 'required|in:modern,minimal,creative,professional,sidebar',
+            'template_id' => 'required|exists:cv_templates,id',
         ]);
 
         $user = Auth::user();
-        $user->cv_template = $request->template;
+        $user->cv_template_id = $request->template_id;
         $user->save();
 
+        $template = CvTemplate::find($request->template_id);
+
         return redirect()
-            ->route('dashboard.resume.preview', ['template' => $request->template])
-            ->with('success', 'Template selected successfully!');
+            ->route('dashboard.resume.preview', ['template' => $template->slug])
+            ->with('success', 'Template "' . $template->name . '" selected successfully!');
     }
 
     /**
@@ -90,29 +82,47 @@ class ResumeController extends Controller
 
         // If no template specified, use saved template or default
         if (!$template) {
-            $template = $user->cv_template ?? 'modern';
+            if ($user->cvTemplate) {
+                $template = $user->cvTemplate->slug;
+            } else {
+                $default = CvTemplate::getDefaultTemplate();
+                $template = $default ? $default->slug : 'modern';
+            }
         }
 
-        // Validate template exists
-        $validTemplates = ['modern', 'minimal', 'creative', 'professional', 'sidebar'];
-        if (!in_array($template, $validTemplates)) {
-            $template = 'modern';
+        // Find template in database
+        $cvTemplate = CvTemplate::where('slug', $template)->first();
+        if (!$cvTemplate) {
+            $default = CvTemplate::getDefaultTemplate();
+            $template = $default ? $default->slug : 'modern';
+            $cvTemplate = CvTemplate::where('slug', $template)->first();
         }
 
         // Get user data
+         /** @var \App\Models\User $user */
         $profile = $user->profile ?? new Profile();
-        $projects = $user->projects->where('is_active', true)->orderBy('sort_order')->get();
-        $skills = $user->skills->where('is_active', true)->orderBy('name')->get();
-        $experiences = $user->experiences->where('is_active', true)->orderBy('sort_order')->orderBy('start_date', 'desc')->get();
-        $education = $user->education->where('is_active', true)->orderBy('sort_order')->orderBy('start_date', 'desc')->get();
-        $socialLinks = $user->socialLinks->where('is_active', true)->get();
+        $projects = $user->projects()->where('is_active', true)->orderBy('sort_order')->get();
+        $skills = $user->skills()->where('is_active', true)->orderBy('name')->get();
+        $experiences = $user->experiences()->where('is_active', true)->orderBy('sort_order')->orderBy('start_date', 'desc')->get();
+        $education = $user->education()->where('is_active', true)->orderBy('sort_order')->orderBy('start_date', 'desc')->get();
+        $socialLinks = $user->socialLinks()->where('is_active', true)->get();
 
         // Group skills by category
         $skillsByCategory = $skills->groupBy('category');
 
-        return view('dashboard.resume.templates.' . $template, compact(
-            'user', 'profile', 'projects', 'skills', 'skillsByCategory',
-            'experiences', 'education', 'socialLinks', 'template'
+        // Determine view path
+        $viewPath = $cvTemplate->getViewPath();
+
+        return view('dashboard.'.$viewPath, compact(
+            'user',
+            'profile',
+            'projects',
+            'skills',
+            'skillsByCategory',
+            'experiences',
+            'education',
+            'socialLinks',
+            'template'
         ));
     }
 
@@ -125,30 +135,47 @@ class ResumeController extends Controller
 
         // If no template specified, use saved template or default
         if (!$template) {
-            $template = $user->cv_template ?? 'modern';
+            if ($user->cvTemplate) {
+                $template = $user->cvTemplate->slug;
+            } else {
+                $default = CvTemplate::getDefaultTemplate();
+                $template = $default ? $default->slug : 'modern';
+            }
         }
 
-        // Validate template exists
-        $validTemplates = ['modern', 'minimal', 'creative', 'professional', 'sidebar'];
-        if (!in_array($template, $validTemplates)) {
-            $template = 'modern';
+        // Find template in database
+        $cvTemplate = CvTemplate::where('slug', $template)->first();
+        if (!$cvTemplate) {
+            $default = CvTemplate::getDefaultTemplate();
+            $template = $default ? $default->slug : 'modern';
+            $cvTemplate = CvTemplate::where('slug', $template)->first();
         }
 
         // Get user data
+         /** @var \App\Models\User $user */
         $profile = $user->profile ?? new Profile();
-        $projects = $user->projects->where('is_active', true)->orderBy('sort_order')->get();
-        $skills = $user->skills->where('is_active', true)->orderBy('name')->get();
-        $experiences = $user->experiences->where('is_active', true)->orderBy('sort_order')->orderBy('start_date', 'desc')->get();
-        $education = $user->education->where('is_active', true)->orderBy('sort_order')->orderBy('start_date', 'desc')->get();
-        $socialLinks = $user->socialLinks->where('is_active', true)->get();
+        $projects = $user->projects()->where('is_active', true)->orderBy('sort_order')->get();
+        $skills = $user->skills()->where('is_active', true)->orderBy('name')->get();
+        $experiences = $user->experiences()->where('is_active', true)->orderBy('sort_order')->orderBy('start_date', 'desc')->get();
+        $education = $user->education()->where('is_active', true)->orderBy('sort_order')->orderBy('start_date', 'desc')->get();
+        $socialLinks = $user->socialLinks()->where('is_active', true)->get();
 
         // Group skills by category
         $skillsByCategory = $skills->groupBy('category');
 
+        $viewPath = $cvTemplate->getViewPath();
+
         // Load PDF view
-        $pdf = Pdf::loadView('dashboard.resume.templates.' . $template, compact(
-            'user', 'profile', 'projects', 'skills', 'skillsByCategory',
-            'experiences', 'education', 'socialLinks', 'template'
+        $pdf = Pdf::loadView($viewPath, compact(
+            'user',
+            'profile',
+            'projects',
+            'skills',
+            'skillsByCategory',
+            'experiences',
+            'education',
+            'socialLinks',
+            'template'
         ));
 
         // Configure PDF options
@@ -183,11 +210,26 @@ class ResumeController extends Controller
         $skillsByCategory = $skills->groupBy('category');
 
         // Get user's selected template or default
-        $template = $user->cv_template ?? 'modern';
+        if ($user->cvTemplate) {
+            $template = $user->cvTemplate->slug;
+        } else {
+            $default = CvTemplate::getDefaultTemplate();
+            $template = $default ? $default->slug : 'modern';
+        }
 
-        return view('dashboard.resume.templates.' . $template, compact(
-            'user', 'profile', 'projects', 'skills', 'skillsByCategory',
-            'experiences', 'education', 'socialLinks', 'template'
+        $cvTemplate = CvTemplate::where('slug', $template)->first();
+        $viewPath = $cvTemplate ? $cvTemplate->getViewPath() : 'cv-templates.modern';
+
+        return view($viewPath, compact(
+            'user',
+            'profile',
+            'projects',
+            'skills',
+            'skillsByCategory',
+            'experiences',
+            'education',
+            'socialLinks',
+            'template'
         ));
     }
 }

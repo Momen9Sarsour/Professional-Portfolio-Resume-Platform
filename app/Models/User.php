@@ -3,7 +3,6 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -76,5 +75,47 @@ class User extends Authenticatable
     public function socialLinks()
     {
         return $this->hasMany(SocialLink::class)->orderBy('platform');
+    }
+
+    public function cvTemplate()
+    {
+        return $this->belongsTo(CvTemplate::class, 'cv_template_id');
+    }
+
+    // ============================================================
+    // ACCESSORS
+    // ============================================================
+
+    public function getCvTemplateSlugAttribute()
+    {
+        if ($this->cvTemplate) {
+            return $this->cvTemplate->slug;
+        }
+
+        $default = CvTemplate::getDefaultTemplate();
+        return $default ? $default->slug : 'modern';
+    }
+
+    public function getCvTemplateNameAttribute()
+    {
+        if ($this->cvTemplate) {
+            return $this->cvTemplate->name;
+        }
+
+        $default = CvTemplate::getDefaultTemplate();
+        return $default ? $default->name : 'Modern';
+    }
+
+    // ============================================================
+    // METHODS
+    // ============================================================
+
+    public function setDefaultTemplate()
+    {
+        $default = CvTemplate::getDefaultTemplate();
+        if ($default && !$this->cvTemplate) {
+            $this->cv_template_id = $default->id;
+            $this->save();
+        }
     }
 }

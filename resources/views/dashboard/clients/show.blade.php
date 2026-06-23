@@ -7,8 +7,8 @@
 @push('styles')
     <style>
         /* ============================================================
-           PROFILE COVER
-        ============================================================ */
+               PROFILE COVER
+            ============================================================ */
         .profile-cover {
             background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #2d3a5e 100%);
             border-radius: 28px;
@@ -108,8 +108,8 @@
         }
 
         /* ============================================================
-           STAT CARDS
-        ============================================================ */
+               STAT CARDS
+            ============================================================ */
         .stat-card {
             background: white;
             border-radius: 20px;
@@ -168,8 +168,8 @@
         }
 
         /* ============================================================
-           SECTION CARDS
-        ============================================================ */
+               SECTION CARDS
+            ============================================================ */
         .section-card {
             background: white;
             border-radius: 24px;
@@ -216,8 +216,8 @@
         }
 
         /* ============================================================
-           BUTTON STYLES
-        ============================================================ */
+               BUTTON STYLES
+            ============================================================ */
         .btn-group-action {
             display: flex;
             gap: 8px;
@@ -268,8 +268,8 @@
         }
 
         /* ============================================================
-           BADGES & TAGS
-        ============================================================ */
+               BADGES & TAGS
+            ============================================================ */
         .skill-badge {
             display: inline-flex;
             align-items: center;
@@ -313,8 +313,8 @@
         }
 
         /* ============================================================
-           ACTION BUTTONS
-        ============================================================ */
+               ACTION BUTTONS
+            ============================================================ */
         .action-btn-sm {
             padding: 7px 14px;
             border-radius: 10px;
@@ -343,8 +343,8 @@
         }
 
         /* ============================================================
-           QUICK ACTIONS SIDEBAR
-        ============================================================ */
+               QUICK ACTIONS SIDEBAR
+            ============================================================ */
         .quick-actions {
             position: sticky;
             top: 90px;
@@ -444,8 +444,8 @@
         }
 
         /* ============================================================
-           TIMELINE ITEMS
-        ============================================================ */
+               TIMELINE ITEMS
+            ============================================================ */
         .timeline-item {
             margin-bottom: 20px;
             padding: 18px 20px;
@@ -556,8 +556,8 @@
         }
 
         /* ============================================================
-           PROJECT CARD
-        ============================================================ */
+               PROJECT CARD
+            ============================================================ */
         .project-card {
             background: white;
             border-radius: 18px;
@@ -634,8 +634,8 @@
         }
 
         /* ============================================================
-           SOCIAL LINK
-        ============================================================ */
+               SOCIAL LINK
+            ============================================================ */
         .social-link-item {
             display: inline-flex;
             align-items: center;
@@ -677,8 +677,8 @@
         }
 
         /* ============================================================
-           MODAL STYLES
-        ============================================================ */
+               MODAL STYLES
+            ============================================================ */
         .modal-dash .modal-content {
             border-radius: 22px;
             border: none;
@@ -715,8 +715,8 @@
         }
 
         /* ============================================================
-           FORM STYLES
-        ============================================================ */
+               FORM STYLES
+            ============================================================ */
         .form-label-dash {
             font-size: 12px;
             font-weight: 700;
@@ -803,8 +803,8 @@
         }
 
         /* ============================================================
-           EMPTY STATE
-        ============================================================ */
+               EMPTY STATE
+            ============================================================ */
         .empty-state {
             text-align: center;
             padding: 48px 20px;
@@ -841,8 +841,8 @@
         }
 
         /* ============================================================
-           CV TEMPLATE SELECTOR
-        ============================================================ */
+               CV TEMPLATE SELECTOR
+            ============================================================ */
         .template-option {
             display: flex;
             align-items: center;
@@ -886,8 +886,8 @@
         }
 
         /* ============================================================
-           SKILL BADGE ACTIONS
-        ============================================================ */
+               SKILL BADGE ACTIONS
+            ============================================================ */
         .skill-badge-wrap {
             position: relative;
             display: inline-flex;
@@ -906,8 +906,8 @@
         }
 
         /* ============================================================
-           RANGE INPUT CUSTOM
-        ============================================================ */
+               RANGE INPUT CUSTOM
+            ============================================================ */
         input[type="range"].form-control-dash {
             padding: 0;
             height: 6px;
@@ -918,8 +918,8 @@
         }
 
         /* ============================================================
-           ABOUT SECTION
-        ============================================================ */
+               ABOUT SECTION
+            ============================================================ */
         .about-text {
             color: #475569;
             line-height: 1.8;
@@ -931,8 +931,8 @@
         }
 
         /* ============================================================
-           PROGRESS MINI BAR (for skills)
-        ============================================================ */
+               PROGRESS MINI BAR (for skills)
+            ============================================================ */
         .skill-progress {
             display: flex;
             align-items: center;
@@ -1458,7 +1458,7 @@
             </div>
         </div>
     </div>
-
+    
     {{-- ============================================================ --}}
     {{-- CV TEMPLATE MODAL --}}
     {{-- ============================================================ --}}
@@ -1477,49 +1477,50 @@
                     <input type="hidden" name="email" value="{{ $user->email }}">
                     <input type="hidden" name="role" value="{{ $user->role }}">
                     <input type="hidden" name="username" value="{{ $user->username }}">
+
                     <div class="modal-body">
                         <p class="mb-3" style="color: #7a869a; font-size:14px;">Select a design template for
-                            <strong>{{ $user->name }}</strong>'s CV</p>
+                            <strong>{{ $user->name }}</strong>'s CV
+                        </p>
+
                         <div>
-                            <div class="template-option {{ ($user->cv_template ?? 'modern') == 'modern' ? 'selected' : '' }}"
-                                onclick="selectTemplate('modern', this)">
-                                <span class="template-name">✨ Modern — Clean & Professional</span>
-                                @if (($user->cv_template ?? 'modern') == 'modern')
-                                    <span class="template-badge">Current</span>
-                                @endif
-                            </div>
-                            <div class="template-option {{ ($user->cv_template ?? '') == 'minimal' ? 'selected' : '' }}"
-                                onclick="selectTemplate('minimal', this)">
-                                <span class="template-name">📄 Minimal — Simple & Elegant</span>
-                                @if (($user->cv_template ?? '') == 'minimal')
-                                    <span class="template-badge">Current</span>
-                                @endif
-                            </div>
-                            <div class="template-option {{ ($user->cv_template ?? '') == 'creative' ? 'selected' : '' }}"
-                                onclick="selectTemplate('creative', this)">
-                                <span class="template-name">🎨 Creative — Bold & Colorful</span>
-                                @if (($user->cv_template ?? '') == 'creative')
-                                    <span class="template-badge">Current</span>
-                                @endif
-                            </div>
-                            <div class="template-option {{ ($user->cv_template ?? '') == 'professional' ? 'selected' : '' }}"
-                                onclick="selectTemplate('professional', this)">
-                                <span class="template-name">💼 Professional — Classic Layout</span>
-                                @if (($user->cv_template ?? '') == 'professional')
-                                    <span class="template-badge">Current</span>
-                                @endif
-                            </div>
-                            <div class="template-option {{ ($user->cv_template ?? '') == 'sidebar' ? 'selected' : '' }}"
-                                onclick="selectTemplate('sidebar', this)">
-                                <span class="template-name">📊 Sidebar — Two Column Layout</span>
-                                @if (($user->cv_template ?? '') == 'sidebar')
-                                    <span class="template-badge">Current</span>
-                                @endif
-                            </div>
+                            {{-- @dump([
+                                $templates->all()
+                            ]) --}}
+                            @foreach ($templates as $template)
+                                <div class="template-option {{ $user->cvTemplate && $user->cvTemplate->id == $template->id ? 'selected' : '' }}"
+                                    onclick="selectTemplateById('{{ $template->id }}', this)">
+                                    <span class="template-name">
+                                        @if ($template->is_system)
+                                            <i class="bi bi-star-fill" style="color: #f59e0b; font-size: 12px;"></i>
+                                        @else
+                                            <i class="bi bi-plus-circle-fill"
+                                                style="color: #2f7bff; font-size: 12px;"></i>
+                                        @endif
+                                        {{ $template->name }}
+                                    </span>
+                                    <div>
+                                        @if ($user->cvTemplate && $user->cvTemplate->id == $template->id)
+                                            <span class="template-badge"
+                                                style="background: #d1fae5; color: #065f46;">Current</span>
+                                        @endif
+                                        @if ($template->is_default)
+                                            <span class="template-badge"
+                                                style="background: #dbeafe; color: #1e40af;">Default</span>
+                                        @endif
+                                        @if ($template->is_system)
+                                            <span class="template-badge"
+                                                style="background: #fef3c7; color: #92400e;">System</span>
+                                        @endif
+                                    </div>
+                                </div>
+                            @endforeach
                         </div>
-                        <input type="hidden" name="cv_template" id="selectedTemplate"
-                            value="{{ $user->cv_template ?? 'modern' }}">
+
+                        <input type="hidden" name="cv_template_id" id="selectedTemplateId"
+                            value="{{ $user->cv_template_id ?? '' }}">
                     </div>
+
                     <div class="modal-footer">
                         <button type="button" class="btn-light-dash" data-bs-dismiss="modal">Cancel</button>
                         <button type="submit" class="btn-primary-dash"><i class="bi bi-check-lg me-1"></i> Save
@@ -2334,6 +2335,19 @@
             const div = document.createElement('div');
             div.textContent = String(text);
             return div.innerHTML;
+        }
+
+        function selectTemplateById(templateId, element) {
+            document.querySelectorAll('.template-option').forEach(opt => {
+                opt.classList.remove('selected');
+                const badge = opt.querySelector('.template-badge');
+                if (badge && badge.innerText === 'Selected') badge.remove();
+            });
+            element.classList.add('selected');
+            if (!element.querySelector('.template-badge')) {
+                element.insertAdjacentHTML('beforeend', '<span class="template-badge">Selected</span>');
+            }
+            document.getElementById('selectedTemplateId').value = templateId;
         }
     </script>
 @endpush

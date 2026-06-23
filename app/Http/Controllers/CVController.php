@@ -3,14 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
-use App\Models\Profile;
-use App\Models\Project;
-use App\Models\Skill;
-use App\Models\Experience;
-use App\Models\Education;
-use App\Models\SocialLink;
 use Barryvdh\DomPDF\Facade\Pdf;
-use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class CVController extends Controller
 {
@@ -18,7 +12,8 @@ class CVController extends Controller
     {
         // If no username, get the first active user or auth user
         if (!$username) {
-            $user = auth()->check() ? auth()->user() : User::first();
+            $user = Auth::check() ? Auth::user() : User::first();
+            // $user = auth()->check() ? auth()->user() : User::first();
         } else {
             $user = User::where('username', $username)->firstOrFail();
         }
@@ -48,7 +43,8 @@ class CVController extends Controller
     public function download($username = null)
     {
         if (!$username) {
-            $user = auth()->check() ? auth()->user() : User::first();
+            $user = Auth::check() ? Auth::user() : User::first();
+            // $user = auth()->check() ? auth()->user() : User::first();
         } else {
             $user = User::where('username', $username)->firstOrFail();
         }

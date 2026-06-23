@@ -3,13 +3,9 @@
 namespace App\Http\Controllers\Dashboard;
 
 use App\Http\Controllers\Controller;
+use App\Models\CvTemplate;
 use App\Models\User;
 use App\Models\Profile;
-use App\Models\Project;
-use App\Models\Skill;
-use App\Models\Experience;
-use App\Models\Education;
-use App\Models\SocialLink;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -116,53 +112,155 @@ class ClientController extends Controller
     /**
      * Display user details with all their data.
      */
-    public function show($id)
-    {
-        if (Auth::user()->role !== 'admin') {
-            abort(403);
-        }
+    // public function show($id)
+    // {
+    //     if (Auth::user()->role !== 'admin') {
+    //         abort(403);
+    //     }
 
-        $user = User::with(['profile', 'projects', 'skills', 'experiences', 'education', 'socialLinks'])->findOrFail($id);
+    //     $user = User::with(['profile', 'projects', 'skills', 'experiences', 'education', 'socialLinks'])->findOrFail($id);
 
-        // Get all data
-        $profile = $user->profile ?? new Profile();
-        $projects = $user->projects()->orderBy('sort_order')->get();
-        $skills = $user->skills()->orderBy('name')->get();
-        $experiences = $user->experiences()->orderBy('sort_order')->orderBy('start_date', 'desc')->get();
-        $education = $user->education()->orderBy('sort_order')->orderBy('start_date', 'desc')->get();
-        $socialLinks = $user->socialLinks()->get();
+    //     // Get all data
+    //     $profile = $user->profile ?? new Profile();
+    //     $projects = $user->projects()->orderBy('sort_order')->get();
+    //     $skills = $user->skills()->orderBy('name')->get();
+    //     $experiences = $user->experiences()->orderBy('sort_order')->orderBy('start_date', 'desc')->get();
+    //     $education = $user->education()->orderBy('sort_order')->orderBy('start_date', 'desc')->get();
+    //     $socialLinks = $user->socialLinks()->get();
 
-        $skillsByCategory = $skills->groupBy('category');
+    //     $skillsByCategory = $skills->groupBy('category');
 
-        return view('dashboard.clients.show', compact(
-            'user',
-            'profile',
-            'projects',
-            'skills',
-            'skillsByCategory',
-            'experiences',
-            'education',
-            'socialLinks'
-        ));
-    }
+    //     return view('dashboard.clients.show', compact(
+    //         'user',
+    //         'profile',
+    //         'projects',
+    //         'skills',
+    //         'skillsByCategory',
+    //         'experiences',
+    //         'education',
+    //         'socialLinks'
+    //     ));
+    // }
 
-    /**
-     * Show form to edit user.
-     */
+    // /**
+    //  * Show form to edit user.
+    //  */
+    // public function edit($id)
+    // {
+    //     if (Auth::user()->role !== 'admin') {
+    //         abort(403);
+    //     }
+
+    //     $user = User::with('profile')->findOrFail($id);
+    //     $profile = $user->profile ?? new Profile();
+
+    //     // Get all templates for selection
+    //     $templates = CvTemplate::where('is_active', true)
+    //         ->orderBy('is_default', 'desc')
+    //         ->orderBy('sort_order')
+    //         ->get();
+
+    //     return view('dashboard.clients.edit', compact('user', 'profile','templates'));
+    // }
+
+    // /**
+    //  * Update user.
+    //  */
+    // public function update(Request $request, $id)
+    // {
+    //     if (Auth::user()->role !== 'admin') {
+    //         abort(403);
+    //     }
+
+    //     $user = User::findOrFail($id);
+
+    //     $validated = $request->validate([
+    //         'name' => 'required|string|max:255',
+    //         'username' => [
+    //             'nullable',
+    //             'string',
+    //             'max:255',
+    //             Rule::unique('users')->ignore($user->id),
+    //         ],
+    //         'email' => [
+    //             'required',
+    //             'email',
+    //             'max:255',
+    //             Rule::unique('users')->ignore($user->id),
+    //         ],
+    //         'password' => 'nullable|string|min:8|confirmed',
+    //         'role' => 'required|in:user,admin',
+    //         'title' => 'nullable|string|max:255',
+    //         'bio' => 'nullable|string|max:2000',
+    //         'location' => 'nullable|string|max:255',
+    //         'phone' => 'nullable|string|max:20',
+    //         'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+    //         'cv_template' => 'nullable|string|in:modern,minimal,creative,professional,sidebar',
+    //     ]);
+
+    //     // Update user
+    //     $user->name = $validated['name'];
+    //     $user->username = $validated['username'];
+    //     $user->email = $validated['email'];
+    //     $user->role = $validated['role'];
+    //     if (isset($validated['cv_template'])) {
+    //         $user->cv_template = $validated['cv_template'];
+    //     }
+
+    //     if (!empty($validated['password'])) {
+    //         $user->password = Hash::make($validated['password']);
+    //     }
+
+    //     $user->save();
+
+    //     // Handle avatar
+    //     $profileData = [
+    //         'title' => $validated['title'] ?? null,
+    //         'bio' => $validated['bio'] ?? null,
+    //         'location' => $validated['location'] ?? null,
+    //         'phone' => $validated['phone'] ?? null,
+    //     ];
+
+    //     if ($request->hasFile('avatar')) {
+    //         // Delete old avatar
+    //         if ($user->profile && $user->profile->avatar) {
+    //             Storage::disk('public')->delete($user->profile->avatar);
+    //         }
+    //         $profileData['avatar'] = $request->file('avatar')->store('avatars', 'public');
+    //     }
+
+    //     if ($user->profile) {
+    //         $user->profile->update($profileData);
+    //     } else {
+    //         $profileData['user_id'] = $user->id;
+    //         Profile::create($profileData);
+    //     }
+
+    //     return redirect()
+    //         ->route('dashboard.clients.index')
+    //         ->with('success', 'User "' . $user->name . '" updated successfully!');
+    // }
+
     public function edit($id)
     {
         if (Auth::user()->role !== 'admin') {
             abort(403);
         }
 
-        $user = User::with('profile')->findOrFail($id);
+        $user = User::with('profile', 'cvTemplate')->findOrFail($id);
         $profile = $user->profile ?? new Profile();
 
-        return view('dashboard.clients.edit', compact('user', 'profile'));
+        // Get all templates for selection
+        $templates = CvTemplate::where('is_active', true)
+            ->orderBy('is_default', 'desc')
+            ->orderBy('sort_order')
+            ->get();
+
+        return view('dashboard.clients.edit', compact('user', 'profile', 'templates'));
     }
 
     /**
-     * Update user.
+     * Update the specified user in storage.
      */
     public function update(Request $request, $id)
     {
@@ -193,7 +291,7 @@ class ClientController extends Controller
             'location' => 'nullable|string|max:255',
             'phone' => 'nullable|string|max:20',
             'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'cv_template' => 'nullable|string|in:modern,minimal,creative,professional,sidebar',
+            'cv_template_id' => 'nullable|exists:cv_templates,id',
         ]);
 
         // Update user
@@ -201,8 +299,10 @@ class ClientController extends Controller
         $user->username = $validated['username'];
         $user->email = $validated['email'];
         $user->role = $validated['role'];
-        if (isset($validated['cv_template'])) {
-            $user->cv_template = $validated['cv_template'];
+
+        // Update CV template if provided
+        if (isset($validated['cv_template_id'])) {
+            $user->cv_template_id = $validated['cv_template_id'];
         }
 
         if (!empty($validated['password'])) {
@@ -220,7 +320,6 @@ class ClientController extends Controller
         ];
 
         if ($request->hasFile('avatar')) {
-            // Delete old avatar
             if ($user->profile && $user->profile->avatar) {
                 Storage::disk('public')->delete($user->profile->avatar);
             }
@@ -234,9 +333,58 @@ class ClientController extends Controller
             Profile::create($profileData);
         }
 
+        // If updating template only, redirect back to client page
+        if ($request->has('update_template_only')) {
+            return redirect()
+                ->route('dashboard.clients.show', $user->id)
+                ->with('success', 'CV template updated successfully!');
+        }
+
         return redirect()
             ->route('dashboard.clients.index')
             ->with('success', 'User "' . $user->name . '" updated successfully!');
+    }
+
+    /**
+     * Display the specified user with all data.
+     */
+    public function show($id)
+    {
+        if (Auth::user()->role !== 'admin') {
+            abort(403);
+        }
+
+        $user = User::with(['profile', 'cvTemplate', 'projects', 'skills', 'experiences', 'education', 'socialLinks'])
+            ->findOrFail($id);
+
+        // Get all data
+        $profile = $user->profile ?? new Profile();
+        $projects = $user->projects()->orderBy('sort_order')->get();
+        $skills = $user->skills()->orderBy('name')->get();
+        $experiences = $user->experiences()->orderBy('sort_order')->orderBy('start_date', 'desc')->get();
+        $education = $user->education()->orderBy('sort_order')->orderBy('start_date', 'desc')->get();
+        $socialLinks = $user->socialLinks()->get();
+
+        $skillsByCategory = $skills->groupBy('category');
+
+        // Get all templates for selection modal
+        $templates = CvTemplate::where('is_active', true)
+            ->orderBy('is_default', 'desc')
+            ->orderBy('sort_order')
+            ->get();
+            // dd($templates);
+
+        return view('dashboard.clients.show', compact(
+            'user',
+            'profile',
+            'projects',
+            'skills',
+            'skillsByCategory',
+            'experiences',
+            'education',
+            'socialLinks',
+            'templates'
+        ));
     }
 
     /**

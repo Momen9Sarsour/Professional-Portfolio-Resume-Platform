@@ -17,14 +17,13 @@ class ProjectSeeder extends Seeder
         $user = User::first();
 
         Project::create([
-
             'user_id' => $user->id,
             'title' => 'Multi Vendor E-commerce Platform',
-            'description' => 'Advanced e-commerce platform built using Laravel.',
+            'description' => 'Advanced e-commerce platform built using Laravel. Advanced e-commerce platform built using Laravel.
+                            Advanced e-commerce platform built using Laravel. Advanced e-commerce platform built using Laravel.',
             'github_link' => 'https://github.com',
-            'demo_link' => null,
+            'demo_link' => 'https://github.com',
             'technologies' => 'Laravel, MySQL, Bootstrap'
-
         ]);
     }
 }

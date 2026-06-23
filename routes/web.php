@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\CVController;
 use App\Http\Controllers\Dashboard\ClientController;
+use App\Http\Controllers\Dashboard\CvTemplateController;
 use App\Http\Controllers\Dashboard\DashboardController;
 use App\Http\Controllers\Dashboard\EducationController;
 use App\Http\Controllers\Dashboard\ExperienceController;
@@ -123,6 +124,20 @@ Route::prefix('dashboard')->name('dashboard.')->middleware(['auth', 'verified'])
     Route::get('/analytics', [DashboardController::class, 'analytics'])->name('analytics');
     Route::get('/analytics/users-data', [DashboardController::class, 'analyticsUsersData'])->name('analytics.users-data');
     Route::get('/analytics/export', [DashboardController::class, 'analyticsExport'])->name('analytics.export');
+
+    // ── CV Templates Management (Admin Only) ────────────────────────────
+    Route::prefix('cv-templates')->name('cv-templates.')->group(function () {
+        Route::get('/', [CvTemplateController::class, 'index'])->name('index');
+        Route::get('/create', [CvTemplateController::class, 'create'])->name('create');
+        Route::post('/', [CvTemplateController::class, 'store'])->name('store');
+        Route::get('/{cvTemplate}', [CvTemplateController::class, 'show'])->name('show');
+        Route::get('/{cvTemplate}/edit', [CvTemplateController::class, 'edit'])->name('edit');
+        Route::put('/{cvTemplate}', [CvTemplateController::class, 'update'])->name('update');
+        Route::delete('/{cvTemplate}', [CvTemplateController::class, 'destroy'])->name('destroy');
+        Route::patch('/{cvTemplate}/toggle', [CvTemplateController::class, 'toggle'])->name('toggle');
+        Route::patch('/{cvTemplate}/set-default', [CvTemplateController::class, 'setDefault'])->name('set-default');
+        Route::get('/{cvTemplate}/preview', [CvTemplateController::class, 'preview'])->name('preview');
+    });
 
     // ── Resume & Analytics (Future Pages) ───────────────────────────
     // Route::view('/resume', 'dashboard.resume')->name('resume');

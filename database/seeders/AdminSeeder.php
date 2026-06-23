@@ -20,7 +20,9 @@ class AdminSeeder extends Seeder
             'username' => 'admin',
             'email' => 'admin@gmail.com',
             'password' => Hash::make('123456789'),
-            'role' => 'admin'
+            'role' => 'admin',
+            'phone' => '+970567077179',
+            'address' => 'Palestine-Gaza',
 
         ]);
     }

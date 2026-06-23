@@ -10,7 +10,7 @@
        PREMIUM STAT CARDS
     ============================================================ */
     .premium-stat-card {
-        background: white;
+        background: var(--white, #ffffff);
         border-radius: 28px;
         padding: 24px;
         transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
@@ -18,6 +18,12 @@
         position: relative;
         overflow: hidden;
         cursor: pointer;
+        height: 100%;
+    }
+
+    [data-theme="dark"] .premium-stat-card {
+        background: #1e293b;
+        border-color: #334155;
     }
 
     .premium-stat-card::before {
@@ -58,9 +64,20 @@
     .stat-number-premium {
         font-size: 38px;
         font-weight: 800;
-        color: #1a2035;
+        color: var(--text-primary, #1a2035);
         line-height: 1.2;
         font-family: 'Plus Jakarta Sans', monospace;
+    }
+
+    [data-theme="dark"] .stat-number-premium {
+        color: #f1f5f9;
+    }
+
+    .stat-label-analytics {
+        font-size: 13px;
+        color: var(--text-muted, #7a869a);
+        margin-top: 4px;
+        font-weight: 500;
     }
 
     .stat-trend {
@@ -92,12 +109,17 @@
        PREMIUM CHART CARDS
     ============================================================ */
     .premium-chart-card {
-        background: white;
+        background: var(--white, #ffffff);
         border-radius: 28px;
         padding: 24px;
         border: 1px solid rgba(47, 123, 255, 0.1);
         transition: all 0.3s;
         height: 100%;
+    }
+
+    [data-theme="dark"] .premium-chart-card {
+        background: #1e293b;
+        border-color: #334155;
     }
 
     .premium-chart-card:hover {
@@ -117,10 +139,14 @@
     .chart-title-premium {
         font-size: 18px;
         font-weight: 800;
-        color: #1a2035;
+        color: var(--text-primary, #1a2035);
         display: flex;
         align-items: center;
         gap: 10px;
+    }
+
+    [data-theme="dark"] .chart-title-premium {
+        color: #f1f5f9;
     }
 
     .chart-title-premium i {
@@ -148,6 +174,11 @@
         cursor: pointer;
         transition: all 0.2s;
         color: #7a869a;
+    }
+
+    [data-theme="dark"] .chart-action-btn {
+        background: #334155;
+        color: #94a3b8;
     }
 
     .chart-action-btn:hover {
@@ -236,21 +267,36 @@
         border-bottom: 2px solid #e8edf5;
     }
 
+    [data-theme="dark"] .data-table th {
+        background: #1e293b;
+        color: #f1f5f9;
+        border-bottom-color: #334155;
+    }
+
     .data-table td {
         padding: 12px 16px;
         border-bottom: 1px solid #e8edf5;
         color: #475569;
     }
 
+    [data-theme="dark"] .data-table td {
+        border-bottom-color: #334155;
+        color: #94a3b8;
+    }
+
     .data-table tr:hover {
         background: #f8fafc;
+    }
+
+    [data-theme="dark"] .data-table tr:hover {
+        background: #1e293b;
     }
 
     /* ============================================================
        FILTER BAR
     ============================================================ */
     .filter-bar-premium {
-        background: white;
+        background: var(--white, #ffffff);
         border-radius: 20px;
         padding: 16px 20px;
         margin-bottom: 28px;
@@ -259,6 +305,11 @@
         flex-wrap: wrap;
         align-items: center;
         border: 1px solid #e8edf5;
+    }
+
+    [data-theme="dark"] .filter-bar-premium {
+        background: #1e293b;
+        border-color: #334155;
     }
 
     .filter-group {
@@ -270,10 +321,18 @@
         border-radius: 50px;
     }
 
+    [data-theme="dark"] .filter-group {
+        background: #334155;
+    }
+
     .filter-group label {
         font-size: 12px;
         font-weight: 600;
         color: #7a869a;
+    }
+
+    [data-theme="dark"] .filter-group label {
+        color: #94a3b8;
     }
 
     .filter-select {
@@ -285,6 +344,10 @@
         padding: 6px 0;
         outline: none;
         cursor: pointer;
+    }
+
+    [data-theme="dark"] .filter-select {
+        color: #f1f5f9;
     }
 
     /* ============================================================
@@ -312,21 +375,16 @@
     .delay-4 { animation-delay: 0.2s; }
     .delay-5 { animation-delay: 0.25s; }
 
-    /* Fullscreen mode */
-    .chart-fullscreen {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100vw;
-        height: 100vh;
-        z-index: 9999;
-        background: white;
-        padding: 40px;
-        border-radius: 0;
+    .text-muted {
+        color: var(--text-muted, #7a869a);
     }
 
-    .chart-fullscreen .chart-container-premium {
-        height: calc(100vh - 120px);
+    .activity-badge {
+        display: inline-block;
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 600;
     }
 </style>
 @endpush
@@ -380,7 +438,8 @@
 
 {{-- Premium Stats Row --}}
 <div class="row g-4 mb-4">
-    <div class="col-lg-3 col-md-6 animate-card delay-2">
+    {{-- 🔒 Total Users - Admin Only --}}
+    <div class="col-lg-3 col-md-6 animate-card delay-2 {{ !$isAdmin ? 'd-none' : '' }}">
         <div class="premium-stat-card" onclick="scrollToChart('usersChart')">
             <div class="d-flex justify-content-between align-items-start mb-3">
                 <div class="stat-gradient-icon"><i class="bi bi-people-fill"></i></div>
@@ -619,14 +678,21 @@
                         <tr><th>Type</th><th>Title/Name</th><th>Date</th><th>Status</th></tr>
                     </thead>
                     <tbody id="recentActivityTable">
-                        @foreach($recentActivities ?? [] as $activity)
+                        @forelse($recentActivities ?? [] as $activity)
                         <tr>
                             <td><span class="activity-badge" style="background: rgba(47,123,255,0.1); color:#2f7bff;">{{ $activity->type }}</span></td>
                             <td>{{ $activity->title }}</td>
                             <td>{{ $activity->created_at->diffForHumans() }}</td>
                             <td><span class="stat-trend trend-up" style="padding:2px 8px;">New</span></td>
                         </tr>
-                        @endforeach
+                        @empty
+                        <tr>
+                            <td colspan="4" style="text-align: center; padding: 30px; color: #94a3b8;">
+                                <i class="bi bi-inbox" style="font-size: 24px; display: block; margin-bottom: 8px; opacity: 0.4;"></i>
+                                No recent activity
+                            </td>
+                        </tr>
+                        @endforelse
                     </tbody>
                 </table>
             </div>
@@ -644,7 +710,7 @@
                 <table class="data-table">
                     <thead><tr><th>Skill</th><th>Level</th><th>Progress</th></tr></thead>
                     <tbody>
-                        @foreach($topSkills ?? [] as $skill)
+                        @forelse($topPerformingSkills ?? [] as $skill)
                         <tr>
                             <td>{{ $skill->name }}</td>
                             <td>{{ $skill->level ?? 0 }}%</td>
@@ -654,7 +720,14 @@
                                 </div>
                             </td>
                         </tr>
-                        @endforeach
+                        @empty
+                        <tr>
+                            <td colspan="3" style="text-align: center; padding: 30px; color: #94a3b8;">
+                                <i class="bi bi-trophy" style="font-size: 24px; display: block; margin-bottom: 8px; opacity: 0.4;"></i>
+                                No skills data available
+                            </td>
+                        </tr>
+                        @endforelse
                     </tbody>
                 </table>
             </div>
@@ -878,7 +951,7 @@
 
     async function exportToPDF() {
         const element = document.querySelector('#main .content-area');
-        const canvas = await html2canvas(element, { scale: 2, backgroundColor: '#ffffff' });
+        const canvas = await html2canvas(element, { scale: 2, backgroundColor: document.documentElement.getAttribute('data-theme') === 'dark' ? '#0f172a' : '#ffffff' });
         const imgData = canvas.toDataURL('image/png');
         const { jsPDF } = window.jspdf;
         const pdf = new jsPDF('p', 'mm', 'a4');
@@ -900,7 +973,7 @@
 
     async function exportToPNG() {
         const element = document.querySelector('#main .content-area');
-        const canvas = await html2canvas(element, { scale: 2 });
+        const canvas = await html2canvas(element, { scale: 2, backgroundColor: document.documentElement.getAttribute('data-theme') === 'dark' ? '#0f172a' : '#ffffff' });
         const link = document.createElement('a');
         link.download = 'analytics-screenshot.png';
         link.href = canvas.toDataURL();
@@ -912,8 +985,22 @@
             navigator.share({ title: 'Analytics Report', text: 'Check out my analytics dashboard!', url: window.location.href });
         } else {
             navigator.clipboard.writeText(window.location.href);
-            alert('Link copied to clipboard!');
+            showToast('🔗', 'Link Copied', 'Report link copied to clipboard!');
         }
+    }
+
+    function showToast(icon, title, message) {
+        const toastContainer = document.getElementById('toast-container');
+        if (!toastContainer) return;
+        const toast = document.createElement('div');
+        toast.className = 'toast-item show';
+        toast.innerHTML = `
+            <span class="toast-ico">${icon}</span>
+            <div class="toast-txt"><p>${title}</p><small>${message}</small></div>
+            <button class="toast-x" onclick="this.parentElement.remove()">×</button>
+        `;
+        toastContainer.appendChild(toast);
+        setTimeout(() => toast.remove(), 3000);
     }
 
     // ============================================================

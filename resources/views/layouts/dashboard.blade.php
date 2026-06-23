@@ -18,7 +18,7 @@
     @php
         $primaryColor = \App\Models\Setting::getValue('primary_color', '#2f7bff');
         $sidebarBg = \App\Models\Setting::getValue('sidebar_bg', '#111827');
-        $defaultTheme = \App\Models\Setting::getValue('default_theme', 'light');
+        $isAdmin = Auth::check() && Auth::user()->role === 'admin';
     @endphp
 
     <style>
@@ -30,10 +30,7 @@
             --topbar-h: 66px;
             --bg: #f0f2f8;
             --white: #ffffff;
-            /* --sidebar-bg: #111827; */
             --sidebar-border: rgba(255, 255, 255, 0.06);
-            /* --sidebar-active: #2f7bff; */
-            /* --sidebar-active-glow: rgba(47, 123, 255, 0.35); */
             --sidebar-text: #8b97b0;
             --sidebar-hover: rgba(255, 255, 255, 0.05);
             --text-primary: #0f172a;
@@ -53,6 +50,18 @@
             --sidebar-bg: {{ $sidebarBg }};
         }
 
+        /* Dark Theme Variables */
+        [data-theme="dark"] {
+            --bg: #0f172a;
+            --white: #1e293b;
+            --border: #334155;
+            --text-primary: #f1f5f9;
+            --text-muted: #94a3b8;
+            --sidebar-bg: #0f172a;
+            --sidebar-text: #94a3b8;
+            --sidebar-hover: rgba(255, 255, 255, 0.08);
+        }
+
         *,
         *::before,
         *::after {
@@ -66,6 +75,7 @@
             background: var(--bg);
             color: var(--text-primary);
             overflow-x: hidden;
+            transition: background 0.3s ease, color 0.3s ease;
         }
 
         ::-webkit-scrollbar {
@@ -94,7 +104,7 @@
             display: flex;
             flex-direction: column;
             z-index: 1000;
-            transition: transform .3s cubic-bezier(.4, 0, .2, 1);
+            transition: transform .3s cubic-bezier(.4, 0, .2, 1), background 0.3s ease;
             overflow: hidden;
         }
 
@@ -261,6 +271,10 @@
             color: #ef4444;
         }
 
+        .sidebar-nav li a.hidden-link {
+            display: none !important;
+        }
+
         .nav-badge {
             margin-left: auto;
             background: var(--sidebar-active);
@@ -371,7 +385,12 @@
             gap: 12px;
             z-index: 900;
             box-shadow: var(--shadow-sm);
-            transition: left .3s cubic-bezier(.4, 0, .2, 1);
+            transition: left .3s cubic-bezier(.4, 0, .2, 1), background 0.3s ease, border-color 0.3s ease;
+        }
+
+        [data-theme="dark"] #topbar {
+            background: rgba(15, 23, 42, .92);
+            border-bottom-color: #334155;
         }
 
         .topbar-title {
@@ -384,6 +403,7 @@
             font-weight: 800;
             color: var(--text-primary);
             line-height: 1;
+            transition: color 0.3s ease;
         }
 
         .topbar-breadcrumb {
@@ -524,6 +544,7 @@
             height: 28px;
             background: var(--border);
             margin: 0 4px;
+            transition: background 0.3s ease;
         }
 
         .topbar-avatar {
@@ -592,6 +613,11 @@
             transform-origin: top right;
         }
 
+        [data-theme="dark"] .drop-panel {
+            background: #1e293b;
+            border-color: #334155;
+        }
+
         .drop-panel.open {
             opacity: 1;
             visibility: visible;
@@ -605,6 +631,10 @@
             justify-content: space-between;
             padding: 16px 18px 12px;
             border-bottom: 1px solid var(--border);
+        }
+
+        [data-theme="dark"] .drop-header {
+            border-bottom-color: #334155;
         }
 
         .drop-header h6 {
@@ -637,6 +667,10 @@
             padding: 10px 18px 0;
             gap: 4px;
             border-bottom: 1px solid var(--border);
+        }
+
+        [data-theme="dark"] .notif-tabs {
+            border-bottom-color: #334155;
         }
 
         .notif-tab {
@@ -672,12 +706,24 @@
             position: relative;
         }
 
+        [data-theme="dark"] .notif-item {
+            border-bottom-color: #334155;
+        }
+
         .notif-item:hover {
             background: #f8fafc;
         }
 
+        [data-theme="dark"] .notif-item:hover {
+            background: #1e293b;
+        }
+
         .notif-item.unread {
             background: rgba(47, 123, 255, .025);
+        }
+
+        [data-theme="dark"] .notif-item.unread {
+            background: rgba(47, 123, 255, .08);
         }
 
         .notif-item.unread::before {
@@ -733,6 +779,10 @@
             text-align: center;
         }
 
+        [data-theme="dark"] .notif-footer {
+            border-top-color: #334155;
+        }
+
         .notif-footer a {
             font-size: 13px;
             font-weight: 700;
@@ -752,6 +802,10 @@
         .msg-search-wrap {
             padding: 12px 18px;
             border-bottom: 1px solid var(--border);
+        }
+
+        [data-theme="dark"] .msg-search-wrap {
+            border-bottom-color: #334155;
         }
 
         .msg-search-wrap input {
@@ -786,8 +840,16 @@
             transition: background .15s;
         }
 
+        [data-theme="dark"] .msg-item {
+            border-bottom-color: #334155;
+        }
+
         .msg-item:hover {
             background: #f8fafc;
+        }
+
+        [data-theme="dark"] .msg-item:hover {
+            background: #1e293b;
         }
 
         .msg-av {
@@ -869,6 +931,10 @@
             align-items: center;
         }
 
+        [data-theme="dark"] .user-panel-header {
+            border-bottom-color: #334155;
+        }
+
         .user-panel-av {
             width: 46px;
             height: 46px;
@@ -947,6 +1013,10 @@
             margin: 6px 8px;
         }
 
+        [data-theme="dark"] .umenu-divider {
+            background: #334155;
+        }
+
         .umenu-tag {
             margin-left: auto;
             font-size: 10px;
@@ -989,6 +1059,10 @@
             transition: transform .2s;
         }
 
+        [data-theme="dark"] .search-modal {
+            background: #1e293b;
+        }
+
         .search-overlay.open .search-modal {
             transform: translateY(0);
         }
@@ -999,6 +1073,10 @@
             gap: 12px;
             padding: 18px 20px;
             border-bottom: 1px solid var(--border);
+        }
+
+        [data-theme="dark"] .search-input-row {
+            border-bottom-color: #334155;
         }
 
         .search-input-row i {
@@ -1060,6 +1138,10 @@
             background: var(--bg);
         }
 
+        [data-theme="dark"] .s-item:hover {
+            background: #1e293b;
+        }
+
         .s-icon {
             width: 34px;
             height: 34px;
@@ -1089,6 +1171,11 @@
             border-top: 1px solid var(--border);
             display: flex;
             gap: 16px;
+        }
+
+        [data-theme="dark"] .search-foot {
+            background: #1e293b;
+            border-top-color: #334155;
         }
 
         .s-hint {
@@ -1135,6 +1222,11 @@
             transition: transform .35s cubic-bezier(.4, 0, .2, 1);
             position: relative;
             overflow: hidden;
+        }
+
+        [data-theme="dark"] .toast-item {
+            background: #1e293b;
+            border-color: #334155;
         }
 
         .toast-item.show {
@@ -1195,6 +1287,10 @@
             box-shadow: 0 20px 60px rgba(0, 0, 0, .2);
         }
 
+        [data-theme="dark"] .logout-modal-content {
+            background: #1e293b;
+        }
+
         /* ============================================================
            MAIN
         ============================================================ */
@@ -1216,6 +1312,12 @@
             border: 1px solid var(--border);
             box-shadow: var(--shadow);
             padding: 22px 24px;
+            transition: background 0.3s ease, border-color 0.3s ease;
+        }
+
+        [data-theme="dark"] .card-box {
+            background: #1e293b;
+            border-color: #334155;
         }
 
         .card-box .card-title-row {
@@ -1358,12 +1460,6 @@
         }
     </style>
 
-    @if (session('theme') ?? $defaultTheme == 'dark')
-        <script>
-            document.documentElement.classList.add('dark-theme');
-        </script>
-    @endif
-
     @if ($customCSS = \App\Models\Setting::getValue('custom_css'))
         <style>
             {{ $customCSS }}
@@ -1383,13 +1479,13 @@
             gtag('config', '{{ $googleAnalytics }}');
         </script>
     @endif
-</head>
 
-@if ($customJS = \App\Models\Setting::getValue('custom_js'))
-    <script>
-        {{ $customJS }}
-    </script>
-@endif
+    @if ($customJS = \App\Models\Setting::getValue('custom_js'))
+        <script>
+            {{ $customJS }}
+        </script>
+    @endif
+</head>
 
 <body>
 
@@ -1513,18 +1609,24 @@
                         class="{{ request()->routeIs('dashboard.analytics*') ? 'active' : '' }}">
                         <i class="bi bi-bar-chart-fill"></i> Analytics
                     </a></li>
-                <li><a href="{{ route('dashboard.clients.index') }}"
-                        class="{{ request()->routeIs('dashboard.clients*') ? 'active' : '' }}">
+                {{-- 🔒 Clients - فقط للإدمن --}}
+                <li>
+                    <a href="{{ route('dashboard.clients.index') }}"
+                        class="{{ request()->routeIs('dashboard.clients*') ? 'active' : '' }} {{ !$isAdmin ? 'hidden-link' : '' }}">
                         <i class="bi bi-people-fill"></i> Clients
-                    </a></li>
+                    </a>
+                </li>
                 <li><a href="{{ route('dashboard.settings.index') }}"
                         class="{{ request()->routeIs('dashboard.settings*') ? 'active' : '' }}">
                         <i class="bi bi-gear-fill"></i> Settings
                     </a></li>
-                <li><a href="{{ route('dashboard.cv-templates.index') }}"
-                        class="{{ request()->routeIs('dashboard.cv-templates*') ? 'active' : '' }}">
-                        <i class="bi bi-gear-fill"></i> cv-templates
-                    </a></li>
+                {{-- 🔒 CV Templates - فقط للإدمن --}}
+                <li>
+                    <a href="{{ route('dashboard.cv-templates.index') }}"
+                        class="{{ request()->routeIs('dashboard.cv-templates*') ? 'active' : '' }} {{ !$isAdmin ? 'hidden-link' : '' }}">
+                        <i class="bi bi-layout-three-columns"></i> CV Templates
+                    </a>
+                </li>
             </ul>
 
             <div class="nav-group-label">Account</div>
@@ -1838,8 +1940,8 @@
 
     <script>
         /* ============================================================
-                                       SIDEBAR
-                                    ============================================================ */
+           SIDEBAR
+        ============================================================ */
         function toggleSidebar() {
             document.getElementById('sidebar').classList.toggle('open');
             document.getElementById('sidebar-overlay').classList.toggle('open');
@@ -2015,6 +2117,14 @@
                 bg: 'rgba(139,92,246,.1)',
                 url: '{{ route('dashboard.settings.index') }}'
             },
+            {
+                title: 'CV Templates',
+                sub: 'Manage CV templates',
+                icon: 'bi-layout-three-columns',
+                color: '#8b5cf6',
+                bg: 'rgba(139,92,246,.1)',
+                url: '{{ route('dashboard.cv-templates.index') }}'
+            },
         ];
 
         function openSearch() {
@@ -2073,34 +2183,48 @@
         });
 
         /* ============================================================
-           DARK / LIGHT THEME
+           DARK / LIGHT THEME - with localStorage persistence
         ============================================================ */
+        // 🔥 Check saved theme from localStorage on page load
+        const savedTheme = localStorage.getItem('theme');
         let dark = false;
 
-        function toggleTheme() {
-            dark = !dark;
-            const icon = document.getElementById('themeIcon');
-            const root = document.documentElement;
-            if (dark) {
-                root.style.setProperty('--bg', '#0f172a');
-                root.style.setProperty('--white', '#1e293b');
-                root.style.setProperty('--border', '#334155');
-                root.style.setProperty('--text-primary', '#f1f5f9');
-                root.style.setProperty('--text-muted', '#94a3b8');
+        function applyTheme(theme) {
+            if (theme === 'dark') {
+                document.documentElement.setAttribute('data-theme', 'dark');
                 document.body.style.background = '#0f172a';
-                icon.className = 'bi bi-sun-fill';
-                showToast('🌙', 'Dark Mode', 'Switched to dark theme');
+                document.getElementById('themeIcon').className = 'bi bi-sun-fill';
+                dark = true;
             } else {
-                root.style.setProperty('--bg', '#f0f2f8');
-                root.style.setProperty('--white', '#ffffff');
-                root.style.setProperty('--border', '#e2e8f3');
-                root.style.setProperty('--text-primary', '#0f172a');
-                root.style.setProperty('--text-muted', '#64748b');
-                document.body.style.background = '#f0f2f8';
-                icon.className = 'bi bi-moon-fill';
-                showToast('☀️', 'Light Mode', 'Switched to light theme');
+                document.documentElement.removeAttribute('data-theme');
+                document.body.style.background = '';
+                document.getElementById('themeIcon').className = 'bi bi-moon-fill';
+                dark = false;
             }
+            // Save to localStorage
+            localStorage.setItem('theme', theme);
         }
+
+        function toggleTheme() {
+            const currentTheme = localStorage.getItem('theme') || 'light';
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            applyTheme(newTheme);
+            showToast(newTheme === 'dark' ? '🌙' : '☀️', newTheme === 'dark' ? 'Dark Mode' : 'Light Mode',
+                `Switched to ${newTheme} theme`);
+        }
+
+        // 🔥 Apply saved theme on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const saved = localStorage.getItem('theme');
+            if (saved) {
+                applyTheme(saved);
+            } else {
+                // Check if system prefers dark mode
+                if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                    applyTheme('dark');
+                }
+            }
+        });
 
         /* ============================================================
            TOAST SYSTEM
@@ -2121,7 +2245,6 @@
         <span class="toast-ico">${icon}</span>
         <div class="toast-txt"><p>${title}</p><small>${message}</small></div>
         <button class="toast-x" onclick="killToast(this.parentElement)">×</button>`;
-            // override the bottom bar color
             t.querySelector('button').insertAdjacentHTML('afterend',
                 `<style>.toast-item:last-child::after{background:${colors[type]||colors.default}}</style>`);
             c.appendChild(t);

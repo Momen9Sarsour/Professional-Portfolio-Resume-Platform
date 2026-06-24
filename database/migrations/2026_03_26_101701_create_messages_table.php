@@ -14,11 +14,15 @@ return new class extends Migration
         Schema::create('messages', function (Blueprint $table) {
             $table->id();
 
-            $table->foreignId('profile_id')->constrained()->cascadeOnDelete();
-            $table->string('name');
-            $table->string('email');
+            $table->foreignId('conversation_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('sender_id')->constrained('users')->cascadeOnDelete();
+            $table->foreignId('receiver_id')->constrained('users')->cascadeOnDelete();
             $table->text('message');
             $table->boolean('is_read')->default(false);
+            $table->timestamp('read_at')->nullable();
+
+            // Indexes for faster queries
+            $table->index(['conversation_id', 'sender_id', 'receiver_id']);
 
             $table->timestamps();
         });

@@ -3,112 +3,356 @@
 namespace App\Http\Controllers\Dashboard;
 
 use App\Http\Controllers\Controller;
+use App\Models\Conversation;
 use App\Models\Message;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class MessageController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Display the messages page with conversations list.
      */
-    public function index(Request $request)
+    public function index()
     {
-        // Only admin can see messages
-        if (Auth::user()->role !== 'admin') {
-            abort(403);
-        }
+        $userId = Auth::id();
 
-        $query = Message::query();
+        // Get all conversations for the current user
+        $conversations = Conversation::where('user_one_id', $userId)
+            ->orWhere('user_two_id', $userId)
+            ->with(['userOne', 'userTwo', 'lastMessage'])
+            ->orderBy('last_message_at', 'desc')
+            ->get();
 
-        // Filter by search (name or email)
-        if ($request->filled('search')) {
-            $query->where(function ($q) use ($request) {
-                $q->where('name', 'like', '%' . $request->search . '%')
-                    ->orWhere('email', 'like', '%' . $request->search . '%')
-                    ->orWhere('message', 'like', '%' . $request->search . '%');
-            });
-        }
+        // Get all users except current user (for starting new conversation)
+        $users = User::where('id', '!=', $userId)->get();
 
-        // Filter by read status
-        if ($request->filled('status')) {
-            $query->where('is_read', $request->status);
-        }
-
-        $messages = $query->orderBy('created_at', 'desc')->paginate(10)->withQueryString();
-
-        return view('dashboard.messages.index', compact('messages'));
+        return view('dashboard.messages.index', compact('conversations', 'users'));
     }
 
     /**
-     * Display the specified resource.
+     * Get conversations list for sidebar (AJAX).
      */
-    public function show(string $id)
+    public function getConversations()
     {
-        if (Auth::user()->role !== 'admin') {
-            abort(403);
-        }
+        try {
+            $userId = Auth::id();
 
-        $message = Message::findOrFail($id);
+            $conversations = Conversation::where('user_one_id', $userId)
+                ->orWhere('user_two_id', $userId)
+                ->with(['userOne', 'userTwo', 'lastMessage'])
+                ->orderBy('last_message_at', 'desc')
+                ->get();
 
-        // Mark as read if not already
-        if (!$message->is_read) {
-            $message->update(['is_read' => true]);
-        }
+            // Add unread count for each conversation
+            $conversations->each(function ($conv) use ($userId) {
+                $conv->unread_messages_count = $conv->messages()
+                    ->where('receiver_id', $userId)
+                    ->where('is_read', false)
+                    ->count();
+            });
 
-        if (request()->ajax()) {
             return response()->json([
                 'success' => true,
-                'message' => $message
+                'conversations' => $conversations,
             ]);
+        } catch (\Exception $e) {
+            Log::error('getConversations error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 500);
         }
-
-        return view('dashboard.messages.show', compact('message'));
     }
 
     /**
-     * Mark message as read.
+     * Get messages for a specific conversation (AJAX).
      */
-    public function markAsRead(Message $message)
+    public function getMessages(Conversation $conversation)
     {
-        if (Auth::user()->role !== 'admin') {
-            abort(403);
+        try {
+            $userId = Auth::id();
+
+            // Check if user is part of this conversation
+            if ($conversation->user_one_id != $userId && $conversation->user_two_id != $userId) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Unauthorized'
+                ], 403);
+            }
+
+            // Get messages
+            $messages = $conversation->messages()
+                ->with(['sender', 'receiver'])
+                ->orderBy('created_at', 'asc')
+                ->get();
+
+            // Mark messages as read
+            $conversation->messages()
+                ->where('receiver_id', $userId)
+                ->where('is_read', false)
+                ->update([
+                    'is_read' => true,
+                    'read_at' => now(),
+                ]);
+
+            // Update last_message_at
+            $conversation->update(['last_message_at' => now()]);
+
+            // Get other user
+            $otherUser = $conversation->user_one_id == $userId
+                ? $conversation->userTwo
+                : $conversation->userOne;
+
+            return response()->json([
+                'success' => true,
+                'messages' => $messages,
+                'conversation_id' => $conversation->id,
+                'other_user' => $otherUser,
+            ]);
+        } catch (\Exception $e) {
+            Log::error('getMessages error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 500);
         }
-
-        $message->update(['is_read' => true]);
-
-        return redirect()
-            ->back()
-            ->with('success', 'Message marked as read!');
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Send a message (AJAX).
      */
-    public function destroy(Message $message)
+    public function sendMessage(Request $request)
     {
-        if (Auth::user()->role !== 'admin') {
-            abort(403);
+        try {
+            $request->validate([
+                'conversation_id' => 'nullable|exists:conversations,id',
+                'receiver_id' => 'required|exists:users,id',
+                'message' => 'required|string|max:5000',
+            ]);
+
+            $senderId = Auth::id();
+            $receiverId = $request->receiver_id;
+
+            // Prevent sending message to self
+            if ($senderId == $receiverId) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Cannot send message to yourself'
+                ], 400);
+            }
+
+            // Get or create conversation
+            if ($request->conversation_id) {
+                $conversation = Conversation::find($request->conversation_id);
+
+                // Verify user is part of conversation
+                if ($conversation->user_one_id != $senderId && $conversation->user_two_id != $senderId) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Unauthorized'
+                    ], 403);
+                }
+            } else {
+                // Create new conversation
+                $conversation = Conversation::where(function ($q) use ($senderId, $receiverId) {
+                    $q->where('user_one_id', $senderId)->where('user_two_id', $receiverId);
+                })->orWhere(function ($q) use ($senderId, $receiverId) {
+                    $q->where('user_one_id', $receiverId)->where('user_two_id', $senderId);
+                })->first();
+
+                if (!$conversation) {
+                    $conversation = Conversation::create([
+                        'user_one_id' => min($senderId, $receiverId),
+                        'user_two_id' => max($senderId, $receiverId),
+                        'last_message_at' => now(),
+                    ]);
+                }
+            }
+
+            // Create message
+            $message = Message::create([
+                'conversation_id' => $conversation->id,
+                'sender_id' => $senderId,
+                'receiver_id' => $receiverId,
+                'message' => $request->message,
+                'is_read' => false,
+            ]);
+
+            // Update last_message_at
+            $conversation->update(['last_message_at' => now()]);
+
+            // Load sender and receiver relationships
+            $message->load(['sender', 'receiver']);
+
+            return response()->json([
+                'success' => true,
+                'message' => $message,
+                'conversation_id' => $conversation->id,
+            ]);
+        } catch (\Exception $e) {
+            Log::error('sendMessage error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 500);
         }
-
-        $message->delete();
-
-        return redirect()
-            ->route('dashboard.messages.index')
-            ->with('success', 'Message deleted successfully!');
     }
 
     /**
-     * Get unread count for badge.
+     * Start a new conversation (AJAX).
      */
-    public function unreadCount()
+    public function startConversation(Request $request)
     {
-        if (Auth::user()->role !== 'admin') {
+        try {
+            $request->validate([
+                'user_id' => 'required|exists:users,id',
+            ]);
+
+            $userId = Auth::id();
+            $otherUserId = $request->user_id;
+
+            // Prevent starting conversation with self
+            if ($userId == $otherUserId) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Cannot start conversation with yourself'
+                ], 400);
+            }
+
+            // Check if user exists
+            $otherUser = User::find($otherUserId);
+            if (!$otherUser) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'User not found'
+                ], 404);
+            }
+
+            // Find or create conversation
+            $conversation = Conversation::where(function ($q) use ($userId, $otherUserId) {
+                $q->where('user_one_id', $userId)->where('user_two_id', $otherUserId);
+            })->orWhere(function ($q) use ($userId, $otherUserId) {
+                $q->where('user_one_id', $otherUserId)->where('user_two_id', $userId);
+            })->first();
+
+            if (!$conversation) {
+                $conversation = Conversation::create([
+                    'user_one_id' => min($userId, $otherUserId),
+                    'user_two_id' => max($userId, $otherUserId),
+                    'last_message_at' => now(),
+                ]);
+            }
+
+            return response()->json([
+                'success' => true,
+                'conversation_id' => $conversation->id,
+                'other_user' => $otherUser,
+            ]);
+        } catch (\Exception $e) {
+            Log::error('startConversation error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Get unread count (AJAX).
+     */
+    public function getUnreadCount()
+    {
+        try {
+            $userId = Auth::id();
+
+            $count = Message::where('receiver_id', $userId)
+                ->where('is_read', false)
+                ->count();
+
+            return response()->json(['count' => $count]);
+        } catch (\Exception $e) {
             return response()->json(['count' => 0]);
         }
+    }
 
-        $count = Message::where('is_read', false)->count();
+    /**
+     * Delete conversation.
+     */
+    public function deleteConversation(Conversation $conversation)
+    {
+        try {
+            $userId = Auth::id();
 
-        return response()->json(['count' => $count]);
+            if ($conversation->user_one_id != $userId && $conversation->user_two_id != $userId) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Unauthorized'
+                ], 403);
+            }
+
+            // Delete all messages in conversation
+            $conversation->messages()->delete();
+            $conversation->delete();
+
+            return response()->json(['success' => true]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Delete a specific message.
+     */
+    public function deleteMessage(Message $message)
+    {
+        try {
+            $userId = Auth::id();
+
+            if ($message->sender_id != $userId) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Unauthorized'
+                ], 403);
+            }
+
+            $message->delete();
+
+            return response()->json(['success' => true]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Mark all messages as read for the current user.
+     */
+    public function markAllRead()
+    {
+        try {
+            $userId = Auth::id();
+
+            Message::where('receiver_id', $userId)
+                ->where('is_read', false)
+                ->update([
+                    'is_read' => true,
+                    'read_at' => now(),
+                ]);
+
+            return response()->json(['success' => true]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 500);
+        }
     }
 }

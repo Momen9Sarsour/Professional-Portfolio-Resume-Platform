@@ -1458,6 +1458,43 @@
         .d6 {
             animation-delay: .3s
         }
+
+
+        /* ── Messages Panel Item ── */
+        .msg-item.unread {
+            background: rgba(47, 123, 255, 0.04);
+            border-left: 3px solid #2f7bff;
+        }
+
+        .msg-item.unread .msg-name {
+            color: #1a2035;
+            font-weight: 700;
+        }
+
+        .msg-item .msg-av {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-weight: 800;
+            font-size: 16px;
+            flex-shrink: 0;
+            position: relative;
+        }
+
+        .msg-item .msg-av .online {
+            position: absolute;
+            bottom: 1px;
+            right: 1px;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #22c55e;
+            border: 2px solid #fff;
+        }
     </style>
 
     @if ($customCSS = \App\Models\Setting::getValue('custom_css'))
@@ -1755,54 +1792,83 @@
                 <button class="tb-btn" id="msgBtn" onclick="togglePanel('msgPanel')" aria-label="Messages"
                     title="Messages">
                     <i class="bi bi-chat-dots-fill"></i>
-                    <span class="badge-dot" style="background:#22c55e;"></span>
+                    @php
+                        $unreadMessagesCount = \App\Models\Message::where('receiver_id', Auth::id())
+                            ->where('is_read', false)
+                            ->count();
+                    @endphp
+                    @if ($unreadMessagesCount > 0)
+                        <span class="badge-dot"
+                            style="background:#ef4444; width: 10px; height: 10px; border-radius: 50%; position: absolute; top: 5px; right: 5px; border: 2px solid var(--bg);"></span>
+                    @else
+                        <span class="badge-dot" style="background:#22c55e;"></span>
+                    @endif
                 </button>
                 <div class="drop-panel msg-panel" id="msgPanel">
                     <div class="drop-header">
                         <h6>💬 Messages</h6>
-                        <button class="drop-mark-all" onclick="showToast('✅','Messages','All marked as read')">Mark
-                            read</button>
+                        <button class="drop-mark-all" onclick="markAllMessagesRead()">Mark all read</button>
                     </div>
                     <div class="msg-search-wrap">
-                        <input type="text" placeholder="Search messages…">
+                        <input type="text" placeholder="Search messages…" id="msgSearchInput"
+                            oninput="filterMsgItems(this.value)">
                     </div>
-                    <div class="msg-list">
-                        <div class="msg-item" onclick="goto('{{ route('dashboard.messages.index') }}')">
-                            <div class="msg-av" style="background:linear-gradient(135deg,#667eea,#764ba2);">A<span
-                                    class="online"></span></div>
-                            <div class="msg-body">
-                                <div class="msg-name">Ali Haffez</div>
-                                <div class="msg-preview">Can we discuss the new project scope?</div>
+                    <div class="msg-list" id="msgList">
+                        @php
+                            $recentMessages = \App\Models\Message::where('receiver_id', Auth::id())
+                                ->orWhere('sender_id', Auth::id())
+                                ->with(['sender', 'receiver'])
+                                ->orderBy('created_at', 'desc')
+                                ->limit(5)
+                                ->get();
+                        @endphp
+
+                        @forelse($recentMessages as $msg)
+                            @php
+                                $otherUser = $msg->sender_id == Auth::id() ? $msg->receiver : $msg->sender;
+                                $isUnread = $msg->receiver_id == Auth::id() && !$msg->is_read;
+                                $initial = $otherUser ? substr($otherUser->name, 0, 1) : 'U';
+                                $colors = [
+                                    '#667eea',
+                                    '#11998e',
+                                    '#f7971e',
+                                    '#ef4444',
+                                    '#8b5cf6',
+                                    '#f97316',
+                                    '#ec4899',
+                                    '#14b8a6',
+                                ];
+                                $color = $colors[($otherUser->id ?? 1) % count($colors)];
+                            @endphp
+                            <div class="msg-item {{ $isUnread ? 'unread' : '' }}"
+                                onclick="goto('{{ route('dashboard.messages.index') }}?user={{ $otherUser->id ?? '' }}')">
+                                <div class="msg-av" style="background:{{ $color }}; position:relative;">
+                                    {{ $initial }}
+                                    @if ($otherUser && $otherUser->id)
+                                        <span class="online"></span>
+                                    @endif
+                                </div>
+                                <div class="msg-body">
+                                    <div class="msg-name">{{ $otherUser->name ?? 'Unknown' }}</div>
+                                    <div class="msg-preview">{{ Str::limit($msg->message, 30) }}</div>
+                                </div>
+                                <div class="msg-meta">
+                                    <span class="msg-time">{{ $msg->created_at->diffForHumans() }}</span>
+                                    @if ($isUnread)
+                                        <span class="msg-badge-sm">{{ $unreadMessagesCount }}</span>
+                                    @endif
+                                </div>
                             </div>
-                            <div class="msg-meta">
-                                <span class="msg-time">5m</span>
-                                <span class="msg-badge-sm">1</span>
+                        @empty
+                            <div class="text-center py-4 text-muted" style="font-size:13px;">
+                                <i class="bi bi-inbox"
+                                    style="font-size:24px; display:block; margin-bottom:8px; opacity:0.3;"></i>
+                                No messages yet
                             </div>
-                        </div>
-                        <div class="msg-item" onclick="goto('{{ route('dashboard.messages.index') }}')">
-                            <div class="msg-av" style="background:linear-gradient(135deg,#11998e,#38ef7d);">S</div>
-                            <div class="msg-body">
-                                <div class="msg-name">Sarah K.</div>
-                                <div class="msg-preview">The website looks amazing, thank you!</div>
-                            </div>
-                            <div class="msg-meta">
-                                <span class="msg-time">2h</span>
-                            </div>
-                        </div>
-                        <div class="msg-item" onclick="goto('{{ route('dashboard.messages.index') }}')">
-                            <div class="msg-av" style="background:linear-gradient(135deg,#f7971e,#ffd200);">M</div>
-                            <div class="msg-body">
-                                <div class="msg-name">Maximus Foundation</div>
-                                <div class="msg-preview">Please send the updated data report</div>
-                            </div>
-                            <div class="msg-meta">
-                                <span class="msg-time">1d</span>
-                                <span class="msg-badge-sm">2</span>
-                            </div>
-                        </div>
+                        @endforelse
                     </div>
                     <div class="notif-footer">
-                        <a href="{{ route('dashboard.messages.index') }}">Open inbox →</a>
+                        <a href="{{ route('dashboard.messages.index') }}">View all messages →</a>
                     </div>
                 </div>
             </div>
@@ -1940,8 +2006,8 @@
 
     <script>
         /* ============================================================
-           SIDEBAR
-        ============================================================ */
+                   SIDEBAR
+                ============================================================ */
         function toggleSidebar() {
             document.getElementById('sidebar').classList.toggle('open');
             document.getElementById('sidebar-overlay').classList.toggle('open');
@@ -2148,10 +2214,10 @@
                 r.innerHTML = `
             <div class="s-label">Quick Links</div>
             ${searchPages.slice(0,6).map(p => `
-                                                <div class="s-item" onclick="goto('${p.url}')">
-                                                    <div class="s-icon" style="background:${p.bg};color:${p.color};"><i class="bi ${p.icon}"></i></div>
-                                                    <div><p>${p.title}</p><small>${p.sub}</small></div>
-                                                </div>`).join('')}`;
+                                                        <div class="s-item" onclick="goto('${p.url}')">
+                                                            <div class="s-icon" style="background:${p.bg};color:${p.color};"><i class="bi ${p.icon}"></i></div>
+                                                            <div><p>${p.title}</p><small>${p.sub}</small></div>
+                                                        </div>`).join('')}`;
                 return;
             }
             const found = searchPages.filter(p =>
@@ -2284,6 +2350,85 @@
                             badge.style.display = 'inline-flex';
                         } else {
                             badge.style.display = 'none';
+                        }
+                    }
+                })
+                .catch(err => console.log('Error fetching unread count'));
+        }, 30000);
+
+
+        /* ============================================================
+       MESSAGES PANEL - Dynamic
+    ============================================================ */
+        function filterMsgItems(query) {
+            const items = document.querySelectorAll('#msgList .msg-item');
+            query = query.toLowerCase().trim();
+            items.forEach(item => {
+                const name = item.querySelector('.msg-name')?.textContent?.toLowerCase() || '';
+                const preview = item.querySelector('.msg-preview')?.textContent?.toLowerCase() || '';
+                if (name.includes(query) || preview.includes(query)) {
+                    item.style.display = 'flex';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+
+        function markAllMessagesRead() {
+            fetch('{{ route('dashboard.messages.mark-all-read') }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Remove unread styling
+                        document.querySelectorAll('#msgList .msg-item.unread').forEach(item => {
+                            item.classList.remove('unread');
+                            const badge = item.querySelector('.msg-badge-sm');
+                            if (badge) badge.remove();
+                        });
+                        // Update badge dot
+                        const badgeDot = document.querySelector('#msgBtn .badge-dot');
+                        if (badgeDot) {
+                            badgeDot.style.background = '#22c55e';
+                        }
+                        showToast('✅', 'Messages', 'All messages marked as read');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error marking all as read:', error);
+                });
+        }
+
+        // Auto-refresh unread count (every 30 seconds)
+        setInterval(function() {
+            fetch('{{ route('dashboard.messages.unread') }}')
+                .then(response => response.json())
+                .then(data => {
+                    // Update badge dot
+                    const badgeDot = document.querySelector('#msgBtn .badge-dot');
+                    if (badgeDot) {
+                        if (data.count > 0) {
+                            badgeDot.style.background = '#ef4444';
+                            badgeDot.style.width = '10px';
+                            badgeDot.style.height = '10px';
+                            badgeDot.style.borderRadius = '50%';
+                            badgeDot.style.position = 'absolute';
+                            badgeDot.style.top = '5px';
+                            badgeDot.style.right = '5px';
+                            badgeDot.style.border = '2px solid var(--bg)';
+                        } else {
+                            badgeDot.style.background = '#22c55e';
+                            badgeDot.style.width = '8px';
+                            badgeDot.style.height = '8px';
+                            badgeDot.style.position = 'relative';
+                            badgeDot.style.top = 'auto';
+                            badgeDot.style.right = 'auto';
+                            badgeDot.style.border = 'none';
                         }
                     }
                 })

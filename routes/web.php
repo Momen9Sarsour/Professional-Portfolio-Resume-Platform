@@ -73,12 +73,19 @@ Route::prefix('dashboard')->name('dashboard.')->middleware(['auth', 'verified'])
     Route::resource('social-links', SocialLinkController::class);
     Route::patch('social-links/{socialLink}/toggle', [SocialLinkController::class, 'toggle'])->name('social-links.toggle');
 
-    // ── Messages (Admin Only) ───────────────────────────────────────
-    Route::get('messages', [MessageController::class, 'index'])->name('messages.index');
-    Route::get('messages/{message}', [MessageController::class, 'show'])->name('messages.show');
-    Route::patch('messages/{message}/read', [MessageController::class, 'markAsRead'])->name('messages.read');
-    Route::delete('messages/{message}', [MessageController::class, 'destroy'])->name('messages.destroy');
-    Route::get('messages/unread-count', [MessageController::class, 'unreadCount'])->name('messages.unread');
+    // ── Messages (Chat System) ──────────────────────────────────────
+    Route::prefix('messages')->name('messages.')->middleware(['auth', 'verified'])->group(function () {
+        Route::get('/', [MessageController::class, 'index'])->name('index');
+        Route::get('/conversations', [MessageController::class, 'getConversations'])->name('conversations');
+        Route::get('/{conversation}/get', [MessageController::class, 'getMessages'])->name('get');
+        Route::post('/send', [MessageController::class, 'sendMessage'])->name('send');
+        Route::post('/start', [MessageController::class, 'startConversation'])->name('start');
+        Route::get('/unread-count', [MessageController::class, 'getUnreadCount'])->name('unread');
+        Route::post('/mark-all-read', [MessageController::class, 'markAllRead'])->name('mark-all-read'); // 🔥 جديد
+        Route::post('/{conversation}/mark-read', [MessageController::class, 'markAllRead'])->name('mark-read');
+        Route::delete('/{message}/delete', [MessageController::class, 'deleteMessage'])->name('delete-message');
+        Route::delete('/{conversation}/delete', [MessageController::class, 'deleteConversation'])->name('delete');
+    });
 
     // ── Resume & Analytics (Future Pages) ───────────────────────────
     // Route::get('/resume', [ResumeController::class, 'index'])->name('resume.index');

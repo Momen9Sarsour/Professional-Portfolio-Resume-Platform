@@ -13,15 +13,22 @@ use App\Http\Controllers\Dashboard\ResumeController;
 use App\Http\Controllers\Dashboard\SettingsController;
 use App\Http\Controllers\Dashboard\SkillController;
 use App\Http\Controllers\Dashboard\SocialLinkController;
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProfileController as BreezeProfileController;
 use Illuminate\Support\Facades\Route;
 
 // ============================================================
 // PUBLIC ROUTES
 // ============================================================
-Route::get('/', function () {
-    return view('welcome');
-})->name('home');
+// Route::get('/', function () {
+//     return view('welcome');
+// })->name('home');
+
+// ============================================================
+// PUBLIC ROUTES (Frontend)
+// ============================================================
+Route::get('/', [HomeController::class, 'index'])->name('home');
+
 
 // CV Routes (Public)
 Route::get('/cv/{username?}', [CVController::class, 'show'])->name('cv.show');

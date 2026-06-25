@@ -7,16 +7,18 @@
 @push('styles')
     <style>
         /* ============================================================
-           CHAT LAYOUT
+           CHAT LAYOUT - Fixed height
         ============================================================ */
         .chat-container {
             display: flex;
-            height: calc(100vh - 220px);
-            min-height: 500px;
+            height: calc(100vh - 200px);
+            min-height: 450px;
+            max-height: calc(100vh - 200px);
             background: white;
             border-radius: 24px;
             overflow: hidden;
             border: 1px solid #e8edf5;
+            position: relative;
         }
 
         /* ============================================================
@@ -25,10 +27,13 @@
         .chat-sidebar {
             width: 340px;
             min-width: 340px;
+            max-width: 340px;
             border-right: 1px solid #e8edf5;
             display: flex;
             flex-direction: column;
             background: #fafbfc;
+            height: 100%;
+            overflow: hidden;
         }
 
         [data-theme="dark"] .chat-sidebar {
@@ -42,6 +47,7 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
+            flex-shrink: 0;
         }
 
         [data-theme="dark"] .chat-sidebar-header {
@@ -61,6 +67,7 @@
         .chat-sidebar-search {
             padding: 12px 16px;
             border-bottom: 1px solid #e8edf5;
+            flex-shrink: 0;
         }
 
         [data-theme="dark"] .chat-sidebar-search {
@@ -92,7 +99,9 @@
         .chat-conversations-list {
             flex: 1;
             overflow-y: auto;
+            overflow-x: hidden;
             padding: 4px 8px;
+            min-height: 0;
         }
 
         .chat-conversations-list::-webkit-scrollbar {
@@ -102,6 +111,10 @@
         .chat-conversations-list::-webkit-scrollbar-thumb {
             background: #cbd5e1;
             border-radius: 4px;
+        }
+
+        .chat-conversations-list::-webkit-scrollbar-track {
+            background: transparent;
         }
 
         /* ============================================================
@@ -146,6 +159,7 @@
             font-weight: 700;
             color: white;
             flex-shrink: 0;
+            position: relative;
         }
 
         .conv-avatar .online-dot {
@@ -212,6 +226,7 @@
             align-items: center;
             justify-content: center;
             padding: 0 6px;
+            flex-shrink: 0;
         }
 
         .conv-unread.zero {
@@ -226,6 +241,9 @@
             display: flex;
             flex-direction: column;
             background: white;
+            height: 100%;
+            overflow: hidden;
+            min-width: 0;
         }
 
         [data-theme="dark"] .chat-window {
@@ -239,6 +257,7 @@
             flex-direction: column;
             height: 100%;
             color: #94a3b8;
+            padding: 20px;
         }
 
         .chat-window-empty i {
@@ -262,6 +281,7 @@
             display: flex;
             align-items: center;
             gap: 14px;
+            flex-shrink: 0;
         }
 
         [data-theme="dark"] .chat-header {
@@ -278,6 +298,7 @@
             font-size: 14px;
             font-weight: 700;
             color: white;
+            flex-shrink: 0;
         }
 
         .chat-header-name {
@@ -299,9 +320,11 @@
             flex: 1;
             padding: 20px 24px;
             overflow-y: auto;
+            overflow-x: hidden;
             display: flex;
             flex-direction: column;
             gap: 8px;
+            min-height: 0;
         }
 
         .chat-messages::-webkit-scrollbar {
@@ -311,6 +334,10 @@
         .chat-messages::-webkit-scrollbar-thumb {
             background: #cbd5e1;
             border-radius: 4px;
+        }
+
+        .chat-messages::-webkit-scrollbar-track {
+            background: transparent;
         }
 
         /* ============================================================
@@ -352,12 +379,6 @@
             margin-top: 4px;
             display: block;
             text-align: right;
-        }
-
-        .message-bubble .message-read-status {
-            font-size: 10px;
-            margin-left: 4px;
-            opacity: 0.6;
         }
 
         .message-date-divider {
@@ -402,10 +423,13 @@
             display: flex;
             gap: 12px;
             align-items: flex-end;
+            flex-shrink: 0;
+            background: white;
         }
 
         [data-theme="dark"] .chat-input-area {
             border-top-color: #334155;
+            background: #0f172a;
         }
 
         .chat-input {
@@ -472,54 +496,10 @@
                 opacity: 0;
                 transform: translateY(8px);
             }
-
             to {
                 opacity: 1;
                 transform: translateY(0);
             }
-        }
-
-        @keyframes typing {
-
-            0%,
-            100% {
-                opacity: 0.3;
-            }
-
-            50% {
-                opacity: 1;
-            }
-        }
-
-        .typing-indicator {
-            display: none;
-            padding: 8px 12px;
-            align-self: flex-start;
-            background: #f1f5f9;
-            border-radius: 16px;
-            margin-bottom: 8px;
-        }
-
-        [data-theme="dark"] .typing-indicator {
-            background: #1e293b;
-        }
-
-        .typing-indicator span {
-            display: inline-block;
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: #94a3b8;
-            margin: 0 2px;
-            animation: typing 1.4s infinite;
-        }
-
-        .typing-indicator span:nth-child(2) {
-            animation-delay: 0.2s;
-        }
-
-        .typing-indicator span:nth-child(3) {
-            animation-delay: 0.4s;
         }
 
         /* ============================================================
@@ -553,6 +533,7 @@
             font-size: 14px;
             font-weight: 700;
             color: white;
+            flex-shrink: 0;
         }
 
         .user-list-name {
@@ -567,6 +548,87 @@
         .user-list-email {
             font-size: 12px;
             color: #94a3b8;
+        }
+
+        /* ============================================================
+           RESPONSIVE
+        ============================================================ */
+        @media (max-width: 768px) {
+            .chat-container {
+                height: calc(100vh - 160px);
+                min-height: 400px;
+                flex-direction: column;
+                border-radius: 16px;
+            }
+
+            .chat-sidebar {
+                width: 100%;
+                min-width: 100%;
+                max-width: 100%;
+                height: 50%;
+                border-right: none;
+                border-bottom: 1px solid #e8edf5;
+            }
+
+            [data-theme="dark"] .chat-sidebar {
+                border-bottom-color: #334155;
+            }
+
+            .chat-window {
+                height: 50%;
+            }
+
+            .chat-sidebar-header {
+                padding: 12px 16px;
+            }
+
+            .chat-messages {
+                padding: 12px 16px;
+            }
+
+            .chat-input-area {
+                padding: 12px 16px;
+            }
+
+            .chat-header {
+                padding: 12px 16px;
+            }
+
+            .message-bubble {
+                max-width: 85%;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .chat-container {
+                height: calc(100vh - 140px);
+                min-height: 350px;
+                border-radius: 12px;
+            }
+
+            .chat-sidebar {
+                height: 45%;
+            }
+
+            .chat-window {
+                height: 55%;
+            }
+
+            .conv-item {
+                padding: 10px 12px;
+            }
+
+            .conv-avatar {
+                width: 36px;
+                height: 36px;
+                font-size: 13px;
+            }
+
+            .message-bubble {
+                max-width: 90%;
+                padding: 8px 12px;
+                font-size: 13px;
+            }
         }
     </style>
 @endpush
@@ -594,10 +656,10 @@
             </div>
 
             <div class="chat-conversations-list" id="conversationsList">
-                {{-- Conversations will be rendered by JavaScript --}}
                 <div class="text-center py-5 text-muted">
                     <i class="bi bi-chat-dots" style="font-size: 32px; opacity: 0.3;"></i>
                     <p style="margin-top: 8px;">No conversations yet</p>
+                    <p style="font-size: 12px;">Click the + button to start a new chat</p>
                 </div>
             </div>
         </div>
@@ -611,11 +673,11 @@
                 <p>Select a conversation or start a new one</p>
             </div>
 
-            {{-- Chat Content (hidden by default) --}}
-            <div id="chatContent" style="display: none; flex: 1; display: none; flex-direction: column;">
+            {{-- Chat Content --}}
+            <div id="chatContent" style="display: none; flex: 1; flex-direction: column; height: 100%; min-height: 0;">
                 <div class="chat-header" id="chatHeader">
                     <div class="chat-header-avatar" id="chatHeaderAvatar">U</div>
-                    <div style="flex: 1;">
+                    <div style="flex: 1; min-width: 0;">
                         <div class="chat-header-name" id="chatHeaderName">User</div>
                         <div class="chat-header-status" id="chatHeaderStatus">Online</div>
                     </div>
@@ -651,9 +713,9 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <input type="text" style="width: 100%;padding: 8px 14px; border-radius: 12px;" class="form-control-dash mb-3" placeholder="Search users..." id="searchUsersInput"
-                        oninput="filterUsers(this.value)">
-                    <div id="usersList">
+                    <input type="text" class="form-control-dash mb-3" placeholder="Search users..."
+                        id="searchUsersInput" oninput="filterUsers(this.value)">
+                    <div id="usersList" style="max-height: 300px; overflow-y: auto;">
                         @foreach ($users as $user)
                             <div class="user-list-item" onclick="startChat({{ $user->id }})"
                                 data-name="{{ strtolower($user->name) }}" data-email="{{ strtolower($user->email) }}">
@@ -687,10 +749,9 @@
         let currentConversationId = null;
         let currentReceiverId = null;
         let currentOtherUser = null;
-        let isPolling = false;
-        let pollingInterval = null;
         let isSending = false;
         let isLoadingMessages = false;
+        let pollingInterval = null;
 
         // ============================================================
         // INITIALIZE
@@ -708,7 +769,8 @@
             }, 5000);
 
             // Auto-resize textarea
-            document.getElementById('chatInput').addEventListener('input', function() {
+            const chatInput = document.getElementById('chatInput');
+            chatInput.addEventListener('input', function() {
                 this.style.height = 'auto';
                 this.style.height = Math.min(this.scrollHeight, 120) + 'px';
             });
@@ -734,12 +796,12 @@
             const container = document.getElementById('conversationsList');
             if (!conversations || conversations.length === 0) {
                 container.innerHTML = `
-                <div class="text-center py-5 text-muted">
-                    <i class="bi bi-chat-dots" style="font-size: 32px; opacity: 0.3;"></i>
-                    <p style="margin-top: 8px;">No conversations yet</p>
-                    <p style="font-size: 12px;">Click the + button to start a new chat</p>
-                </div>
-            `;
+                    <div class="text-center py-5 text-muted">
+                        <i class="bi bi-chat-dots" style="font-size: 32px; opacity: 0.3;"></i>
+                        <p style="margin-top: 8px;">No conversations yet</p>
+                        <p style="font-size: 12px;">Click the + button to start a new chat</p>
+                    </div>
+                `;
                 return;
             }
 
@@ -751,52 +813,42 @@
                 const unreadCount = conv.unread_messages_count || 0;
                 const initial = (otherUser.name || 'U').charAt(0).toUpperCase();
 
-                // Count unread messages for this conversation
-                let unreadHtml = '';
-                if (unreadCount > 0) {
-                    unreadHtml = `<span class="conv-unread">${unreadCount}</span>`;
-                } else {
-                    unreadHtml = `<span class="conv-unread zero">0</span>`;
-                }
-
                 const isActive = currentConversationId === conv.id ? 'active' : '';
 
                 html += `
-                <div class="conv-item ${isActive}"
-                     onclick="selectConversation(${conv.id}, ${otherUser.id})"
-                     data-conv-id="${conv.id}">
-                    <div class="conv-avatar" style="background: ${getColor(otherUser.id)}; position: relative;">
-                        ${initial}
-                        <span class="online-dot"></span>
-                    </div>
-                    <div class="conv-info">
-                        <div class="conv-name">
-                            ${otherUser.name}
-                            <span class="conv-time">${lastMsg ? timeAgo(lastMsg.created_at) : ''}</span>
+                    <div class="conv-item ${isActive}"
+                         onclick="selectConversation(${conv.id}, ${otherUser.id})"
+                         data-conv-id="${conv.id}">
+                        <div class="conv-avatar" style="background: ${getColor(otherUser.id)}; position: relative;">
+                            ${initial}
+                            <span class="online-dot"></span>
                         </div>
-                        <div class="conv-last-message">
-                            ${lastMsg ? lastMsg.message : 'No messages yet'}
+                        <div class="conv-info">
+                            <div class="conv-name">
+                                ${otherUser.name}
+                                <span class="conv-time">${lastMsg ? timeAgo(lastMsg.created_at) : ''}</span>
+                            </div>
+                            <div class="conv-last-message">
+                                ${lastMsg ? lastMsg.message : 'No messages yet'}
+                            </div>
                         </div>
+                        ${unreadCount > 0 ? `<span class="conv-unread">${unreadCount}</span>` : '<span class="conv-unread zero">0</span>'}
                     </div>
-                    ${unreadHtml}
-                </div>
-            `;
+                `;
             });
 
             container.innerHTML = html;
         }
 
         // ============================================================
-        // SELECT CONVERSATION - 🔥 Fixed
+        // SELECT CONVERSATION
         // ============================================================
         function selectConversation(convId, userId) {
-            // 🔥 Prevent multiple simultaneous requests
             if (isLoadingMessages) return;
 
             currentConversationId = convId;
             currentReceiverId = userId;
 
-            // 🔥 Update UI immediately
             document.querySelectorAll('.conv-item').forEach(item => {
                 item.classList.remove('active');
             });
@@ -805,20 +857,17 @@
                 activeItem.classList.add('active');
             }
 
-            // 🔥 Enable input
             document.getElementById('chatInput').disabled = false;
             document.getElementById('sendBtn').disabled = false;
             document.getElementById('chatInput').focus();
 
-            // 🔥 Load messages
             loadMessages(convId);
         }
 
         // ============================================================
-        // LOAD MESSAGES - 🔥 Fixed
+        // LOAD MESSAGES
         // ============================================================
         function loadMessages(convId, isPolling = false) {
-            // 🔥 Prevent multiple requests
             if (isLoadingMessages && !isPolling) return;
             isLoadingMessages = true;
 
@@ -830,15 +879,12 @@
                         renderMessages(data.messages, data.other_user);
                         showChatWindow(data.other_user);
 
-                        // 🔥 Update input enabled state
                         document.getElementById('chatInput').disabled = false;
                         document.getElementById('sendBtn').disabled = false;
                         document.getElementById('chatInput').focus();
 
-                        // 🔥 Update unread count
                         updateUnreadCount();
 
-                        // Scroll to bottom
                         const container = document.getElementById('chatMessages');
                         setTimeout(() => {
                             container.scrollTop = container.scrollHeight;
@@ -856,11 +902,11 @@
             const container = document.getElementById('chatMessages');
             if (!messages || messages.length === 0) {
                 container.innerHTML = `
-                <div class="text-center text-muted py-5">
-                    <i class="bi bi-chat" style="font-size: 32px; opacity: 0.3;"></i>
-                    <p style="margin-top: 8px;">No messages yet. Say hello!</p>
-                </div>
-            `;
+                    <div class="text-center text-muted py-5">
+                        <i class="bi bi-chat" style="font-size: 32px; opacity: 0.3;"></i>
+                        <p style="margin-top: 8px;">No messages yet. Say hello!</p>
+                    </div>
+                `;
                 return;
             }
 
@@ -872,10 +918,10 @@
                 if (lastDate !== msgDate) {
                     lastDate = msgDate;
                     html += `
-                    <div class="message-date-divider">
-                        <span>${formatDate(msg.created_at)}</span>
-                    </div>
-                `;
+                        <div class="message-date-divider">
+                            <span>${formatDate(msg.created_at)}</span>
+                        </div>
+                    `;
                 }
 
                 const isSent = msg.sender_id === {{ Auth::id() }};
@@ -886,11 +932,11 @@
                 });
 
                 html += `
-                <div class="message-bubble ${bubbleClass}">
-                    ${msg.message}
-                    <span class="message-time">${time}</span>
-                </div>
-            `;
+                    <div class="message-bubble ${bubbleClass}">
+                        ${msg.message}
+                        <span class="message-time">${time}</span>
+                    </div>
+                `;
             });
 
             container.innerHTML = html;
@@ -908,13 +954,9 @@
         }
 
         // ============================================================
-        // START NEW CHAT - 🔥 Fixed
-        // ============================================================
-        // ============================================================
-        // START NEW CHAT - 🔥 Fixed with better error handling
+        // START NEW CHAT
         // ============================================================
         function startChat(userId) {
-            // 🔥 Show loading state
             const items = document.querySelectorAll('.user-list-item');
             items.forEach(item => {
                 if (item.getAttribute('onclick')?.includes(`startChat(${userId})`)) {
@@ -923,62 +965,54 @@
                 }
             });
 
-            // 🔥 Get CSRF token from meta tag
             const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
 
             fetch('{{ route('dashboard.messages.start') }}', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': token || '{{ csrf_token() }}',
-                        'Accept': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        user_id: userId
-                    })
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok: ' + response.status);
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    if (data.success) {
-                        // 🔥 Close modal
-                        const modalEl = document.getElementById('startChatModal');
-                        const modal = bootstrap.Modal.getInstance(modalEl);
-                        if (modal) {
-                            modal.hide();
-                        } else {
-                            // Fallback: close by removing backdrop
-                            document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
-                            document.body.classList.remove('modal-open');
-                            modalEl.style.display = 'none';
-                        }
-
-                        // 🔥 Select the new conversation
-                        selectConversation(data.conversation_id, userId);
-
-                        // 🔥 Reload conversations list
-                        setTimeout(() => {
-                            loadConversations();
-                        }, 500);
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': token || '{{ csrf_token() }}',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({ user_id: userId })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok: ' + response.status);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    const modalEl = document.getElementById('startChatModal');
+                    const modal = bootstrap.Modal.getInstance(modalEl);
+                    if (modal) {
+                        modal.hide();
                     } else {
-                        alert(data.message || 'Failed to start conversation. Please try again.');
+                        document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
+                        document.body.classList.remove('modal-open');
+                        modalEl.style.display = 'none';
                     }
-                })
-                .catch(error => {
-                    console.error('Error starting chat:', error);
-                    alert('An error occurred. Please try again. Error: ' + error.message);
-                })
-                .finally(() => {
-                    // Reset item styles
-                    document.querySelectorAll('.user-list-item').forEach(item => {
-                        item.style.opacity = '1';
-                        item.style.cursor = 'pointer';
-                    });
+
+                    selectConversation(data.conversation_id, userId);
+
+                    setTimeout(() => {
+                        loadConversations();
+                    }, 500);
+                } else {
+                    alert(data.message || 'Failed to start conversation. Please try again.');
+                }
+            })
+            .catch(error => {
+                console.error('Error starting chat:', error);
+                alert('An error occurred. Please try again. Error: ' + error.message);
+            })
+            .finally(() => {
+                document.querySelectorAll('.user-list-item').forEach(item => {
+                    item.style.opacity = '1';
+                    item.style.cursor = 'pointer';
                 });
+            });
         }
 
         function openStartChatModal() {
@@ -999,34 +1033,34 @@
             sendBtn.disabled = true;
 
             fetch('{{ route('dashboard.messages.send') }}', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                    },
-                    body: JSON.stringify({
-                        conversation_id: currentConversationId,
-                        receiver_id: currentReceiverId,
-                        message: message
-                    })
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({
+                    conversation_id: currentConversationId,
+                    receiver_id: currentReceiverId,
+                    message: message
                 })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        input.value = '';
-                        input.style.height = 'auto';
-                        loadMessages(currentConversationId);
-                        setTimeout(() => {
-                            loadConversations();
-                        }, 300);
-                    }
-                    isSending = false;
-                    sendBtn.disabled = false;
-                })
-                .catch(() => {
-                    isSending = false;
-                    sendBtn.disabled = false;
-                });
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    input.value = '';
+                    input.style.height = 'auto';
+                    loadMessages(currentConversationId);
+                    setTimeout(() => {
+                        loadConversations();
+                    }, 300);
+                }
+                isSending = false;
+                sendBtn.disabled = false;
+            })
+            .catch(() => {
+                isSending = false;
+                sendBtn.disabled = false;
+            });
         }
 
         function handleKeyDown(event) {
@@ -1044,28 +1078,28 @@
             if (!confirm('Are you sure you want to delete this conversation?')) return;
 
             fetch(`/dashboard/messages/${currentConversationId}/delete`, {
-                    method: 'DELETE',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        currentConversationId = null;
-                        currentReceiverId = null;
-                        document.getElementById('chatEmptyState').style.display = 'flex';
-                        document.getElementById('chatContent').style.display = 'none';
-                        document.getElementById('chatInput').disabled = true;
-                        document.getElementById('sendBtn').disabled = true;
-                        loadConversations();
-                    }
-                });
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    currentConversationId = null;
+                    currentReceiverId = null;
+                    document.getElementById('chatEmptyState').style.display = 'flex';
+                    document.getElementById('chatContent').style.display = 'none';
+                    document.getElementById('chatInput').disabled = true;
+                    document.getElementById('sendBtn').disabled = true;
+                    loadConversations();
+                }
+            });
         }
 
         // ============================================================
-        // FILTER CONVERSATIONS
+        // FILTER FUNCTIONS
         // ============================================================
         function filterConversations(query) {
             const items = document.querySelectorAll('.conv-item');
@@ -1105,14 +1139,9 @@
                     const badge = document.getElementById('unreadBadgeSidebar');
                     if (badge) {
                         badge.textContent = data.count;
-                        if (data.count === 0) {
-                            badge.style.display = 'none';
-                        } else {
-                            badge.style.display = 'inline-block';
-                        }
+                        badge.style.display = data.count > 0 ? 'inline-block' : 'none';
                     }
 
-                    // Update sidebar badge
                     const sidebarBadge = document.querySelector('.sidebar-nav a[href*="messages"] .nav-badge');
                     if (sidebarBadge) {
                         if (data.count > 0) {

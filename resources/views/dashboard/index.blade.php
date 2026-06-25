@@ -938,19 +938,19 @@
                 <h5 style="font-weight:700; color:#1a2035;">Quick Actions</h5>
                 <p style="font-size:13px; color:#7a869a; margin-bottom:16px;">Manage your content from one place</p>
                 <div style="display:flex; gap:8px; justify-content:center; flex-wrap:wrap;">
-                    <a href="{{ route('dashboard.projects.create') }}" class="view-all-btn" style="background:#2f7bff; color:white; border-color:#2f7bff;">
+                    <a href="{{ route('dashboard.projects.index') }}" class="view-all-btn" style="background:#2f7bff; color:white; border-color:#2f7bff;">
                         <i class="bi bi-folder-plus"></i> Project
                     </a>
-                    <a href="{{ route('dashboard.skills.create') }}" class="view-all-btn" style="background:#2f7bff; color:white; border-color:#2f7bff;">
+                    <a href="{{ route('dashboard.skills.index') }}" class="view-all-btn" style="background:#2f7bff; color:white; border-color:#2f7bff;">
                         <i class="bi bi-lightning-charge"></i> Skill
                     </a>
-                    <a href="{{ route('dashboard.experiences.create') }}" class="view-all-btn" style="background:#2f7bff; color:white; border-color:#2f7bff;">
+                    <a href="{{ route('dashboard.experiences.index') }}" class="view-all-btn" style="background:#2f7bff; color:white; border-color:#2f7bff;">
                         <i class="bi bi-briefcase"></i> Experience
                     </a>
-                    <a href="{{ route('dashboard.education.create') }}" class="view-all-btn" style="background:#2f7bff; color:white; border-color:#2f7bff;">
+                    <a href="{{ route('dashboard.education.index') }}" class="view-all-btn" style="background:#2f7bff; color:white; border-color:#2f7bff;">
                         <i class="bi bi-mortarboard"></i> Education
                     </a>
-                    <a href="{{ route('dashboard.clients.create') }}" class="view-all-btn" style="background:#2f7bff; color:white; border-color:#2f7bff;">
+                    <a href="{{ route('dashboard.clients.index') }}" class="view-all-btn" style="background:#2f7bff; color:white; border-color:#2f7bff;">
                         <i class="bi bi-person-plus"></i> User
                     </a>
                 </div>
@@ -968,16 +968,16 @@
                 <h5 style="font-weight:700; color:#1a2035;">Quick Actions</h5>
                 <p style="font-size:13px; color:#7a869a; margin-bottom:16px;">Manage your content</p>
                 <div style="display:flex; gap:8px; justify-content:center; flex-wrap:wrap;">
-                    <a href="{{ route('dashboard.projects.create') }}" class="view-all-btn" style="background:#2f7bff; color:white; border-color:#2f7bff;">
+                    <a href="{{ route('dashboard.projects.index') }}" class="view-all-btn" style="background:#2f7bff; color:white; border-color:#2f7bff;">
                         <i class="bi bi-folder-plus"></i> Project
                     </a>
-                    <a href="{{ route('dashboard.skills.create') }}" class="view-all-btn" style="background:#2f7bff; color:white; border-color:#2f7bff;">
+                    <a href="{{ route('dashboard.skills.index') }}" class="view-all-btn" style="background:#2f7bff; color:white; border-color:#2f7bff;">
                         <i class="bi bi-lightning-charge"></i> Skill
                     </a>
-                    <a href="{{ route('dashboard.experiences.create') }}" class="view-all-btn" style="background:#2f7bff; color:white; border-color:#2f7bff;">
+                    <a href="{{ route('dashboard.experiences.index') }}" class="view-all-btn" style="background:#2f7bff; color:white; border-color:#2f7bff;">
                         <i class="bi bi-briefcase"></i> Experience
                     </a>
-                    <a href="{{ route('dashboard.education.create') }}" class="view-all-btn" style="background:#2f7bff; color:white; border-color:#2f7bff;">
+                    <a href="{{ route('dashboard.education.index') }}" class="view-all-btn" style="background:#2f7bff; color:white; border-color:#2f7bff;">
                         <i class="bi bi-mortarboard"></i> Education
                     </a>
                 </div>

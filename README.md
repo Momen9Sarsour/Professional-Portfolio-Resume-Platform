@@ -1,5 +1,3 @@
-
-```markdown
 # 🚀 Professional CV Management System
 
 > A comprehensive Laravel-based platform for creating, managing, and showcasing professional CVs with multiple templates, user management, and advanced analytics.
@@ -12,7 +10,7 @@
 
 ---
 
-## 📋 **Table of Contents**
+## 📋 Table of Contents
 
 - [Overview](#-overview)
 - [Features](#-features)
@@ -21,7 +19,6 @@
 - [Database Structure](#-database-structure)
 - [Modules & Functionality](#-modules--functionality)
 - [User Roles & Permissions](#-user-roles--permissions)
-- [Screenshots](#-screenshots)
 - [API Documentation](#-api-documentation)
 - [Contributing](#-contributing)
 - [License](#-license)
@@ -29,7 +26,7 @@
 
 ---
 
-## 🎯 **Overview**
+## 🎯 Overview
 
 **CV Management System** is a full-featured web application built with Laravel that allows users to create, manage, and share professional CVs. The platform provides multiple design templates, real-time preview, PDF export, and comprehensive admin controls for user and content management.
 
@@ -39,54 +36,51 @@
 - Admin users overseeing the platform
 - Freelancers showcasing their portfolio
 
-**Live Demo:** [View Live Demo](#)  
-**Documentation:** [Wiki](#)
-
 ---
 
-## ✨ **Features**
+## ✨ Features
 
-### 🔐 **Authentication & Authorization**
+### 🔐 Authentication & Authorization
 - ✅ Secure login/register system with Laravel Breeze
 - ✅ Role-based access control (Admin / User)
 - ✅ Email verification support
 - ✅ Password reset functionality
 - ✅ Remember me feature
 
-### 🎨 **CV Templates**
-- ✅ **5+ Professional Templates** (Modern, Minimal, Creative, Professional, Sidebar, Classic)
-- ✅ **Real-time Preview** of CV changes
-- ✅ **Color Customization** for each template
-- ✅ **Dynamic Template Management** (Add, Edit, Delete templates)
-- ✅ **Live Preview** during template editing
-- ✅ **PDF Export** with dompdf integration
+### 🎨 CV Templates
+- ✅ 6+ Professional Templates (Modern, Minimal, Creative, Professional, Sidebar, Classic)
+- ✅ Real-time Preview of CV changes
+- ✅ Color Customization for each template
+- ✅ Dynamic Template Management (Add, Edit, Delete templates)
+- ✅ Live Preview during template editing
+- ✅ PDF Export with dompdf integration
 
-### 📊 **Dashboard & Analytics**
-- ✅ Interactive dashboard with **real-time statistics**
-- ✅ **Advanced Analytics** with Chart.js
-- ✅ **User growth charts** (monthly/ yearly)
-- ✅ **Project distribution** by category
-- ✅ **Skills level distribution**
-- ✅ **Activity tracking** and recent activity log
-- ✅ **Export reports** (PDF, Excel, CSV, JSON, PNG)
+### 📊 Dashboard & Analytics
+- ✅ Interactive dashboard with real-time statistics
+- ✅ Advanced Analytics with Chart.js
+- ✅ User growth charts (monthly/yearly)
+- ✅ Project distribution by category
+- ✅ Skills level distribution
+- ✅ Activity tracking and recent activity log
+- ✅ Export reports (PDF, Excel, CSV, JSON, PNG)
 
-### 👥 **User Management (Clients)**
+### 👥 User Management (Clients)
 - ✅ Full CRUD operations for users
-- ✅ **Admin-only** user management panel
+- ✅ Admin-only user management panel
 - ✅ User role assignment (Admin / User)
 - ✅ Profile management with avatar upload
 - ✅ CV template assignment per user
 
-### 💬 **Messaging System (Chat)**
-- ✅ **Real-time chat** between users (Admin ↔ User, User ↔ User)
-- ✅ **WhatsApp-style interface** with conversation list
-- ✅ **Unread message indicators**
-- ✅ **Mark all as read** functionality
-- ✅ **Search conversations** and filter by status
-- ✅ **AJAX-based** dynamic message loading
-- ✅ **Delete conversations** and individual messages
+### 💬 Messaging System (Chat)
+- ✅ Real-time chat between users (Admin ↔ User, User ↔ User)
+- ✅ WhatsApp-style interface with conversation list
+- ✅ Unread message indicators
+- ✅ Mark all as read functionality
+- ✅ Search conversations and filter by status
+- ✅ AJAX-based dynamic message loading
+- ✅ Delete conversations and individual messages
 
-### 📝 **Project Management**
+### 📝 Project Management
 - ✅ Create, edit, delete projects
 - ✅ Upload project images
 - ✅ Assign projects to users (Admin)
@@ -94,60 +88,60 @@
 - ✅ Active/Inactive status toggle
 - ✅ Sort order management
 
-### 🛠️ **Skill Management**
+### 🛠️ Skill Management
 - ✅ Add, edit, delete skills
 - ✅ Skill level (0-100%)
 - ✅ Category classification (Frontend, Backend, Database, DevOps, Mobile, Other)
 - ✅ Active/Inactive status toggle
 
-### 💼 **Experience Management**
+### 💼 Experience Management
 - ✅ Add, edit, delete work experiences
 - ✅ Company, job title, start/end dates
 - ✅ Description and achievements
 - ✅ Sort order management
 - ✅ Active/Inactive status toggle
 
-### 🎓 **Education Management**
+### 🎓 Education Management
 - ✅ Add, edit, delete education records
 - ✅ Degree, university, start/end dates
 - ✅ Description fields
 - ✅ Sort order management
 - ✅ Active/Inactive status toggle
 
-### 🔗 **Social Links Management**
+### 🔗 Social Links Management
 - ✅ Add, edit, delete social links
 - ✅ Multiple platforms (GitHub, LinkedIn, Twitter, Facebook, Instagram, YouTube, WhatsApp, Telegram)
 - ✅ Active/Inactive status toggle
 
-### ⚙️ **Settings Management**
-- ✅ **General Settings** (Site name, title, description, keywords)
-- ✅ **Appearance Settings** (Primary, secondary, accent colors)
-- ✅ **CV Theme Customizer** (CV primary, secondary, accent colors)
-- ✅ **Social Links Configuration**
-- ✅ **Email Settings** (SMTP configuration)
-- ✅ **Advanced Settings** (Custom CSS/JS, Google Analytics)
-- ✅ **Maintenance Mode** toggle
+### ⚙️ Settings Management
+- ✅ General Settings (Site name, title, description, keywords)
+- ✅ Appearance Settings (Primary, secondary, accent colors)
+- ✅ CV Theme Customizer (CV primary, secondary, accent colors)
+- ✅ Social Links Configuration
+- ✅ Email Settings (SMTP configuration)
+- ✅ Advanced Settings (Custom CSS/JS, Google Analytics)
+- ✅ Maintenance Mode toggle
 
-### 🌙 **Dark/Light Theme**
-- ✅ **Persistent dark/light mode** with localStorage
+### 🌙 Dark/Light Theme
+- ✅ Persistent dark/light mode with localStorage
 - ✅ System preference detection
 - ✅ Smooth transitions between themes
 
-### 🔍 **Global Search**
+### 🔍 Global Search
 - ✅ Quick search across all modules
 - ✅ Keyboard shortcuts (Ctrl+K)
 - ✅ Search results in real-time
 
-### 📱 **Responsive Design**
+### 📱 Responsive Design
 - ✅ Fully responsive for all devices
 - ✅ Mobile-friendly sidebar navigation
 - ✅ Touch-friendly UI elements
 
 ---
 
-## 🛠️ **Technology Stack**
+## 🛠️ Technology Stack
 
-### **Backend**
+### Backend
 | Technology | Version | Purpose |
 |------------|---------|---------|
 | Laravel | 10.x | PHP Framework |
@@ -155,48 +149,38 @@
 | MySQL | 8.0+ | Database |
 | Laravel Breeze | Latest | Authentication |
 | DomPDF | 2.x | PDF Generation |
-| Laravel UI | Latest | Frontend Scaffolding |
 
-### **Frontend**
+### Frontend
 | Technology | Version | Purpose |
 |------------|---------|---------|
 | Bootstrap | 5.3 | CSS Framework |
 | Chart.js | 4.4 | Data Visualization |
 | CodeMirror | 5.65 | Code Editor |
 | jQuery | 3.7 | JavaScript Library |
-| HTML/CSS/JS | - | Core Technologies |
-
-### **Tools & Services**
-| Tool | Purpose |
-|------|---------|
-| Composer | Dependency Management |
-| NPM | Asset Management |
-| Git | Version Control |
-| VS Code | IDE |
 
 ---
 
-## 📦 **Installation Guide**
+## 📦 Installation Guide
 
-### **Prerequisites**
+### Prerequisites
 - PHP 8.1 or higher
 - Composer
 - MySQL 8.0 or higher
 - Node.js & NPM
 
-### **Step 1: Clone the Repository**
+### Step 1: Clone the Repository
 ```bash
 git clone https://github.com/your-username/cv-management-system.git
 cd cv-management-system
 ```
 
-### **Step 2: Install Dependencies**
+### Step 2: Install Dependencies
 ```bash
 composer install
 npm install
 ```
 
-### **Step 3: Environment Configuration**
+### Step 3: Environment Configuration
 ```bash
 cp .env.example .env
 ```
@@ -211,38 +195,38 @@ DB_USERNAME=your_username
 DB_PASSWORD=your_password
 ```
 
-### **Step 4: Generate Application Key**
+### Step 4: Generate Application Key
 ```bash
 php artisan key:generate
 ```
 
-### **Step 5: Run Migrations & Seeders**
+### Step 5: Run Migrations & Seeders
 ```bash
 php artisan migrate --seed
 ```
 
-### **Step 6: Create Storage Link**
+### Step 6: Create Storage Link
 ```bash
 php artisan storage:link
 ```
 
-### **Step 7: Build Assets**
+### Step 7: Build Assets
 ```bash
 npm run build
 ```
 
-### **Step 8: Start Development Server**
+### Step 8: Start Development Server
 ```bash
 php artisan serve
 ```
 
-### **Default Admin Credentials**
+### Default Admin Credentials
 ```
 Email: admin@example.com
 Password: password
 ```
 
-### **Default User Credentials**
+### Default User Credentials
 ```
 Email: user@example.com
 Password: password
@@ -250,10 +234,9 @@ Password: password
 
 ---
 
-## 🗄️ **Database Structure**
+## 🗄️ Database Structure
 
-### **Core Tables**
-
+### Core Tables
 | Table | Description |
 |-------|-------------|
 | `users` | User accounts and authentication |
@@ -268,7 +251,7 @@ Password: password
 | `cv_templates` | CV design templates |
 | `settings` | Application settings |
 
-### **Relationships**
+### Relationships
 ```
 users
   ├── profile (one-to-one)
@@ -284,9 +267,9 @@ users
 
 ---
 
-## 📂 **Modules & Functionality**
+## 📂 Modules & Functionality
 
-### **1. Authentication (Breeze)**
+### 1. Authentication (Breeze)
 ```
 /auth
   ├── /login          # User login
@@ -295,7 +278,7 @@ users
   └── /verify-email   # Email verification
 ```
 
-### **2. Dashboard**
+### 2. Dashboard
 ```
 /dashboard
   ├── /index          # Main dashboard with stats
@@ -304,7 +287,7 @@ users
   └── /analytics      # Advanced analytics
 ```
 
-### **3. Projects**
+### 3. Projects
 ```
 /dashboard/projects
   ├── /index          # List all projects
@@ -314,7 +297,7 @@ users
   └── /{id}/toggle    # Toggle active status
 ```
 
-### **4. Skills**
+### 4. Skills
 ```
 /dashboard/skills
   ├── /index          # List all skills
@@ -324,7 +307,7 @@ users
   └── /{id}/toggle    # Toggle active status
 ```
 
-### **5. Experiences**
+### 5. Experiences
 ```
 /dashboard/experiences
   ├── /index          # List all experiences
@@ -334,7 +317,7 @@ users
   └── /{id}/toggle    # Toggle active status
 ```
 
-### **6. Education**
+### 6. Education
 ```
 /dashboard/education
   ├── /index          # List all education
@@ -344,7 +327,7 @@ users
   └── /{id}/toggle    # Toggle active status
 ```
 
-### **7. Social Links**
+### 7. Social Links
 ```
 /dashboard/social-links
   ├── /index          # List all social links
@@ -354,7 +337,7 @@ users
   └── /{id}/toggle    # Toggle active status
 ```
 
-### **8. Messages (Chat System)**
+### 8. Messages (Chat System)
 ```
 /dashboard/messages
   ├── /index          # Chat interface
@@ -366,7 +349,7 @@ users
   └── /{id}/delete    # Delete conversation
 ```
 
-### **9. CV Templates**
+### 9. CV Templates
 ```
 /dashboard/cv-templates
   ├── /index          # List all templates
@@ -378,7 +361,7 @@ users
   └── /{id}/preview   # Preview template
 ```
 
-### **10. Clients (User Management - Admin Only)**
+### 10. Clients (User Management - Admin Only)
 ```
 /dashboard/clients
   ├── /index          # List all users
@@ -390,7 +373,7 @@ users
   └── /{id}/preview-cv # Preview user CV
 ```
 
-### **11. Resume**
+### 11. Resume
 ```
 /dashboard/resume
   ├── /index          # Template selection
@@ -399,7 +382,7 @@ users
   └── /download/{slug}# Download PDF
 ```
 
-### **12. Settings**
+### 12. Settings
 ```
 /dashboard/settings
   ├── /index          # Settings dashboard
@@ -410,7 +393,7 @@ users
 
 ---
 
-## 👤 **User Roles & Permissions**
+## 👤 User Roles & Permissions
 
 | Feature | Admin | User |
 |---------|-------|------|
@@ -430,31 +413,9 @@ users
 
 ---
 
-## 📸 **Screenshots**
+## 🔌 API Documentation
 
-### 🏠 **Landing Page**
-![Landing Page](public/images/screenshots/landing.png)
-
-### 📊 **Dashboard**
-![Dashboard](public/images/screenshots/dashboard.png)
-
-### 🎨 **CV Templates**
-![CV Templates](public/images/screenshots/templates.png)
-
-### 💬 **Chat System**
-![Chat System](public/images/screenshots/chat.png)
-
-### 📈 **Analytics**
-![Analytics](public/images/screenshots/analytics.png)
-
-### ⚙️ **Settings**
-![Settings](public/images/screenshots/settings.png)
-
----
-
-## 🔌 **API Documentation**
-
-### **Authentication Endpoints**
+### Authentication Endpoints
 ```
 POST   /login              # User login
 POST   /register           # User registration
@@ -463,19 +424,19 @@ POST   /forgot-password    # Password reset request
 POST   /reset-password     # Password reset
 ```
 
-### **Dashboard Endpoints**
+### Dashboard Endpoints
 ```
 GET    /dashboard          # Main dashboard
 GET    /dashboard/analytics # Analytics data
 ```
 
-### **CV Endpoints**
+### CV Endpoints
 ```
 GET    /cv/{username}      # Public CV view
 GET    /cv/{username}/download # Download CV as PDF
 ```
 
-### **Message Endpoints (AJAX)**
+### Message Endpoints (AJAX)
 ```
 GET    /dashboard/messages/conversations    # Get conversations
 GET    /dashboard/messages/{id}/get         # Get messages
@@ -487,34 +448,18 @@ DELETE /dashboard/messages/{id}/delete      # Delete conversation
 
 ---
 
-## 🤝 **Contributing**
+## 🤝 Contributing
 
 We welcome contributions! Please follow these steps:
 
-1. **Fork** the repository
-2. **Clone** your fork
-```bash
-git clone https://github.com/your-username/cv-management-system.git
-```
+1. Fork the repository
+2. Clone your fork: `git clone https://github.com/your-username/cv-management-system.git`
+3. Create a feature branch: `git checkout -b feature/amazing-feature`
+4. Commit your changes: `git commit -m 'Add some amazing feature'`
+5. Push to the branch: `git push origin feature/amazing-feature`
+6. Create a Pull Request
 
-3. **Create** a feature branch
-```bash
-git checkout -b feature/amazing-feature
-```
-
-4. **Commit** your changes
-```bash
-git commit -m 'Add some amazing feature'
-```
-
-5. **Push** to the branch
-```bash
-git push origin feature/amazing-feature
-```
-
-6. **Create** a Pull Request
-
-### **Coding Standards**
+### Coding Standards
 - Follow PSR-12 coding standards
 - Write comprehensive tests
 - Document your code
@@ -522,50 +467,50 @@ git push origin feature/amazing-feature
 
 ---
 
-## 📄 **License**
+## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License - see the LICENSE file for details.
 
 ---
 
-## 📞 **Contact**
+## 📞 Contact
 
 **Mo'men Sarsour**
 - 📧 Email: [momensarsour5@gmail.com](mailto:momensarsour5@gmail.com)
 - 🔗 GitHub: [Momen9Sarsour](https://github.com/Momen9Sarsour)
 - 💼 LinkedIn: [Mo'men Sarsour](https://linkedin.com/in/momen-sarsour)
 
-**Project Links:**
+### Project Links
 - 🌐 Live Demo: [View Demo](https://your-demo-url.com)
 - 📚 Documentation: [Wiki](https://github.com/your-username/cv-management-system/wiki)
 - 🐛 Issue Tracker: [Issues](https://github.com/your-username/cv-management-system/issues)
 
 ---
 
-## 🔑 **Keywords (SEO)**
+## 🔑 Keywords (SEO)
 
 ```
 Laravel CV Builder, CV Management System, Professional CV Maker, Resume Builder PHP, 
 Laravel Portfolio System, CV Templates Laravel, PDF CV Generator, Job Seeker Platform,
 Laravel Admin Panel, CV Creator, Resume Management, Online CV Maker, Laravel Chat System,
 Portfolio Management, CV Customizer, Multiple CV Templates, PDF Export Laravel,
-Laravel Dashboard, Analytics Dashboard, Laravel CRUD, User Management System
+Laravel Dashboard, Analytics Dashboard, Laravel CRUD, User Management System,
+CV Template Builder, Laravel Resume Builder, Professional Portfolio, CV Generator PHP
 ```
 
 ---
 
-## 🏆 **Acknowledgments**
+## 🏆 Acknowledgments
 
 - [Laravel](https://laravel.com) - The PHP Framework
 - [Bootstrap](https://getbootstrap.com) - CSS Framework
 - [Chart.js](https://www.chartjs.org) - Charts
 - [DomPDF](https://github.com/barryvdh/laravel-dompdf) - PDF Generation
 - [CodeMirror](https://codemirror.net) - Code Editor
-- [Font Awesome](https://fontawesome.com) - Icons
 
 ---
 
-## 📊 **Project Status**
+## 📊 Project Status
 
 | Component | Status | Progress |
 |-----------|--------|----------|
